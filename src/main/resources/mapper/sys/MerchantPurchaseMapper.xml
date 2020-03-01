@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kang.sys.mapper.MerchantPurchaseMapper">
+    <resultMap id="getPage" type="com.kang.sys.vo.PurchaseWithDetailsVo">
+        <id column="purchase_id" property="purchaseId"/>
+        <result column="purchase_number" property="purchaseNumber"/>
+        <result column="purchase_total_amount" property="purchaseTotalAmount"/>
+        <result column="purchase_status" property="purchaseStatus"/>
+        <result column="purchase_pay" property="purchasePay"/>
+        <result column="purchase_unpaid" property="purchaseUnpaid"/>
+        <result column="purchase_settle_status" property="purchaseSettleStatus"/>
+        <result column="purchase_pay_type" property="purchasePayType"/>
+        <result column="insert_time" property="insertTime"/>
+        <result column="username" property="username"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="shop_name" property="shopName"/>
+        <!-- 根据 getPageWithConditions 方法返回值再到MerchantPurchaseDetailsMapper 中的getDetailsByNumber 查询 返回值添加到chidren中 传递参数为getPageWithConditions查询出来结果中的purchase_number字段的值-->
+        <collection property="children" ofType="com.kang.sys.vo.PurchaseDetailsVo"
+                    select="com.kang.sys.mapper.MerchantPurchaseDetailsMapper.getDetailsByNumber" column="purchase_number">
+
+        </collection>
+    </resultMap>
+
+    <select id="getPageWithConditions" resultMap="getPage" parameterType="com.kang.sys.dto.QueryPurchaseDto">
+    select mp.purchase_id,mp.purchase_number,mp.purchase_total_amount,mp.purchase_status
+            ,mp.purchase_pay,mp.purchase_unpaid,mp.purchase_settle_status,mp.purchase_pay_type
+            ,mp.insert_time
+            ,su.username,ms.supplier_name,msp.shop_name from merchant_purchase mp
+            LEFT JOIN sys_user su
+            ON mp.insert_user = su.user_id
+            LEFT JOIN merchant_supplier ms
+            ON mp.supplier_id = ms.supplier_id
+            LEFT JOIN merchant_shop msp
+            ON mp.shop_id = msp.shop_id
+            where 1=1
+            <if test="dto.purchaseNumber != null">
+                AND mp.purchase_number = #{dto.purchaseNumber}
+            </if>
+            <if test="dto.purchaseSettleStatus != null">
+                AND mp.purchase_settle_status = #{dto.purchaseSettleStatus}
+            </if>
+            <if test="dto.purchasePayType != null">
+                AND mp.purchase_pay_type = #{dto.purchasePayType}
+            </if>
+            <if test="dto.insertTime != null">
+                AND mp.insert_time like CONCAT('%',#{dto.insertTime},'%')
+            </if>
+            <if test="dto.supplierName != null">
+                AND ms.supplier_name = #{dto.supplierName}
+            </if>
+            <if test="dto.shopName != null">
+                AND msp.shop_name like CONCAT('%', #{dto.shopName},'%')
+            </if>
+            <if test="dto.username != null">
+                AND su.username = #{dto.username}
+            </if>
+    </select>
+
+    <!-- 一对多查询
+     <resultMap id="getPage" type="com.kang.sys.vo.PurchaseWithDetailsVo">
+        <id column="purchase_id" property="purchaseId"/>
+        <result column="purchase_number" property="purchaseNumber"/>
+        <result column="purchase_total_amount" property="purchaseTotalAmount"/>
+        <result column="purchase_status" property="purchaseStatus"/>
+        <result column="purchase_pay" property="purchasePay"/>
+        <result column="purchase_unpaid" property="purchaseUnpaid"/>
+        <result column="purchase_settle_status" property="purchaseSettleStatus"/>
+        <result column="purchase_pay_type" property="purchasePayType"/>
+        <result column="insert_time" property="insertTime"/>
+        <result column="username" property="username"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="shop_name" property="shopName"/>
+        <collection property="children" ofType="com.kang.sys.vo.PurchaseDetailsVo">
+            <id column="details_id" property="detailsId"/>
+            <result column="purchase_quantity" property="purchaseQuantity"></result>
+            <result column="refer_unit_price" property="referUnitPrice"></result>
+            <result column="before_discount" property="beforeDiscount"></result>
+            <result column="after_discount" property="afterDiscount"></result>
+            <result column="discount_rate" property="discountRate"></result>
+            <result column="commodity_name" property="commodityName"></result>
+            <result column="commodity_unit" property="commodityUnit"></result>
+            <result column="commodity_number" property="commodityNumber"></result>
+        </collection>
+    </resultMap>
+
+    <select id="getPageWithConditions" resultMap="getPage" parameterType="com.kang.sys.dto.QueryPurchaseDto">
+    select mp.purchase_id,mp.purchase_number,mp.purchase_total_amount,mp.purchase_status
+            ,mp.purchase_pay,mp.purchase_unpaid,mp.purchase_settle_status,mp.purchase_pay_type
+            ,mp.insert_time
+            ,su.username,ms.supplier_name,msp.shop_name ,mpd.details_id,mpd.purchase_quantity
+            ,mpd.refer_unit_price,mpd.before_discount,mpd.after_discount,mpd.discount_rate ,mc.commodity_name,mc.commodity_unit,mc.commodity_number
+            from merchant_purchase mp
+            LEFT JOIN sys_user su
+            ON mp.insert_user = su.user_id
+            LEFT JOIN merchant_supplier ms
+            ON mp.supplier_id = ms.supplier_id
+            LEFT JOIN merchant_shop msp
+            ON mp.shop_id = msp.shop_id
+            LEFT JOIN merchant_purchase_details mpd
+            ON mp.purchase_number = mpd.purchase_number
+            LEFT JOIN merchant_commodity mc
+            ON mpd.commodity_id = mc.commodity_id
+            where 1=1
+            <if test="dto.purchaseNumber != null">
+                AND mp.purchase_number = #{dto.purchaseNumber}
+            </if>
+            <if test="dto.purchaseSettleStatus != null">
+                AND mp.purchase_settle_status = #{dto.purchaseSettleStatus}
+            </if>
+            <if test="dto.purchasePayType != null">
+                AND mp.purchase_pay_type = #{dto.purchasePayType}
+            </if>
+            <if test="dto.insertTime != null">
+                AND mp.insert_time like CONCAT('%',#{dto.insertTime},'%')
+            </if>
+            <if test="dto.supplierName != null">
+                AND ms.supplier_name = #{dto.supplierName}
+            </if>
+            <if test="dto.shopName != null">
+                AND msp.shop_name like CONCAT('%', #{dto.shopName},'%')
+            </if>
+            <if test="dto.username != null">
+                AND su.username = #{dto.username}
+            </if>
+    </select>
+     -->
+</mapper>
