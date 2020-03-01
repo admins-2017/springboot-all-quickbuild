@@ -6,6 +6,7 @@ import com.kang.imploded.redis.entity.SecurityWithToken;
 import com.kang.imploded.security.entity.SecurityUser;
 import com.kang.imploded.security.jwt.JWTConfig;
 import com.kang.imploded.security.jwt.JWTTokenUtil;
+import com.kang.sys.vo.LoginSuccessVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +41,17 @@ public class UserLoginSuccessHandler implements AuthenticationSuccessHandler {
         SecurityUser selfUserEntity =  (SecurityUser) authentication.getPrincipal();
         String token = JWTTokenUtil.createAccessToken(selfUserEntity);
         token = JWTConfig.tokenPrefix + token;
+        //为前端提供返回vo
+        LoginSuccessVo successVo = new LoginSuccessVo();
+        BeanUtils.copyProperties(selfUserEntity,successVo);
+        successVo.setToken(token);
+        //暂时写死
+        successVo.setEmail("11067985926@qq.com");
+        successVo.setMobile("15149633654");
         // 封装返回参数
         Map<String,Object> resultData = new HashMap<>();
-        resultData.put("code","200");
-        resultData.put("msg", "登录成功");
-        resultData.put("token",token);
+        resultData.put("meta",JSONResult.loginOk());
+        resultData.put("data",successVo);
 
         //封装对象保存到redis
         SecurityWithToken securityWithToken=new SecurityWithToken();

@@ -2,6 +2,9 @@ package com.kang.sys.service;
 
 import com.kang.sys.entity.MerchantShop;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.kang.sys.vo.purchase.PurchaseShopVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IMerchantShopService extends IService<MerchantShop> {
 
+    /**
+     * 用于进货单初始化数据
+     * @return
+     */
+    List<PurchaseShopVo> getListByInit();
 }

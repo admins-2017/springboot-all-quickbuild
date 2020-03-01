@@ -71,6 +71,7 @@ public class JWTAuthenticationTokenFilter extends BasicAuthenticationFilter {
                     SecurityUser securityUser = new SecurityUser();
                     securityUser.setUsername(claims.getSubject());
                     securityUser.setUserId(Long.parseLong(claims.getId()));
+                    securityUser.setTenantId(Long.parseLong(claims.get("tenant_id").toString()));
                     securityUser.setAuthorities(authorities);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, userId, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authentication);

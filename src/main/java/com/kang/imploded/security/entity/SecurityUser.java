@@ -31,7 +31,7 @@ public class SecurityUser implements Serializable, UserDetails {
     /**
      * 多租户标示
      */
-    private Integer tenantId;
+    private Long tenantId;
 
     /**
      * 用户角色

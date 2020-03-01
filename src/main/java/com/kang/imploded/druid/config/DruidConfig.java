@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
  *  数据源配置类
  * @author kang
  */
-@Configuration
+//@Configuration
 public class DruidConfig {
     /**
      * 将所有前缀为spring.datasource下的配置项都加载到DataSource中
@@ -32,7 +32,7 @@ public class DruidConfig {
         // 添加IP白名单
         servletRegistrationBean.addInitParameter("allow", "127.0.0.1");
         // 添加IP黑名单，当白名单和黑名单重复时，黑名单优先级更高
-        servletRegistrationBean.addInitParameter("deny", "127.0.0.1");
+        servletRegistrationBean.addInitParameter("deny", "");
         // 添加控制台管理用户
         servletRegistrationBean.addInitParameter("loginUsername", "admin");
         servletRegistrationBean.addInitParameter("loginPassword", "123456");
@@ -46,14 +46,14 @@ public class DruidConfig {
      *  访问http://localhost:8080/druid/login.html 查看druid监控
      * @return 返回过滤器配置对象
      */
-    @Bean
-    public FilterRegistrationBean statFilter() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new WebStatFilter());
-        // 添加过滤规则
-        filterRegistrationBean.addUrlPatterns("/*");
-        // 忽略过滤格式
-        filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*,");
-        return filterRegistrationBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean statFilter() {
+//        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new WebStatFilter());
+//        // 添加过滤规则
+//        filterRegistrationBean.addUrlPatterns("/*");
+//        // 忽略过滤格式
+//        filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*,");
+//        return filterRegistrationBean;
+//    }
 
 }

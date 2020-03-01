@@ -2,4 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kang.sys.mapper.MerchantCommodityCategoryMapper">
 
+    <select id="selectAllCategoryWithPage" resultType="com.kang.sys.vo.MerchantCommodityCategoryVo">
+        SELECT category_id, category_name, category_status, category_pid, category_level
+        FROM merchant_commodity_category WHERE category_status = 1 and category_pid =0
+    </select>
+
 </mapper>

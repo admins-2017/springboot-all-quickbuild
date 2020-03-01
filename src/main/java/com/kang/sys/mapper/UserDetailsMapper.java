@@ -2,6 +2,7 @@ package com.kang.sys.mapper;
 
 import com.kang.sys.entity.UserDetails;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>

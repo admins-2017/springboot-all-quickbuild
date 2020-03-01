@@ -1,8 +1,11 @@
 package com.kang.sys.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kang.sys.dto.MerchantCommodityAndCategoryName;
 import com.kang.sys.entity.MerchantCommodityCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.kang.sys.vo.MerchantCommodityCategoryVo;
 
 import java.util.List;
 
@@ -21,5 +24,12 @@ public interface IMerchantCommodityCategoryService extends IService<MerchantComm
      * @param categoryId
      * @return List<MerchantCommodity>
      */
-    List<MerchantCommodityAndCategoryName> getCommodityWithCategory(Integer categoryId);
+    IPage<MerchantCommodityAndCategoryName> getCommodityWithCategory(Page<MerchantCommodityAndCategoryName> pages,Integer categoryId);
+
+    /**
+     * 分页查询所有分类
+     * @param categoryPage
+     * @return
+     */
+    IPage<MerchantCommodityCategoryVo> getAllCategoryWithPage(Page<MerchantCommodityCategoryVo> categoryPage);
 }

@@ -35,7 +35,6 @@ public class UserPermissionEvaluator implements PermissionEvaluator {
      */
     @Override
     public boolean hasPermission(Authentication authentication, Object targetUrl, Object permission) {
-        System.out.println("执行hasPermission鉴权方法 :  hasPermission");
         // 获取用户信息
         SecurityUser securityUser =(SecurityUser) authentication.getPrincipal();
         // 查询用户权限(这里可以将权限放入缓存中提升效率)
@@ -43,7 +42,6 @@ public class UserPermissionEvaluator implements PermissionEvaluator {
         List<Menu> menuList = userService.selectMenuByUserId(securityUser.getUserId());
         for (Menu menu:menuList) {
             permissions.add(menu.getPermission());
-            System.out.println("该用户有权限:"+menu.getPermission());
         }
         // 权限对比
         if (permissions.contains(permission.toString())){

@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.tenant.TenantHandler;
 import com.baomidou.mybatisplus.extension.plugins.tenant.TenantSqlParser;
 import com.kang.imploded.security.entity.SecurityUser;
+import com.kang.imploded.security.until.SecurityUntil;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -15,6 +16,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -47,10 +49,8 @@ public class MybatisPlusConfig {
 
             @Override
             public Expression getTenantId() {
-                HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                        .getRequest();
                 //从session中获取当前租户id
-                SecurityUser user = (SecurityUser)request.getSession().getAttribute("user");
+                SecurityUser user = SecurityUntil.getUserInfo();
                 return new LongValue(user.getTenantId());
             }
             //getTenantId()方法 标示多租户字段，返回租户id的字段名，不是类的属性名
@@ -71,6 +71,8 @@ public class MybatisPlusConfig {
                 String tableSysUserRole="sys_user_role";
                 String tableSysRoleMenu="sys_role_menu";
                 String tableSysRole="sys_role";
+                String tableSysUserDetails="sys_user_details";
+                String merchantPurchaseDetails="merchant_purchase_details";
                 //过滤掉user表 不做多租户查询
                 if (tableUser.equals(tableName)){
                     return true;
@@ -81,6 +83,10 @@ public class MybatisPlusConfig {
                 }else if (tableSysRoleMenu.equals(tableName)){
                     return true;
                 }else if (tableSysRole.equals(tableName)){
+                    return true;
+                }else if (tableSysUserDetails.equals(tableName)){
+                    return true;
+                }else if (merchantPurchaseDetails.equals(tableName)){
                     return true;
                 }
                 return false;

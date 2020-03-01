@@ -1,6 +1,7 @@
 package com.kang.imploded.aspect;
 
 import com.kang.imploded.security.entity.SecurityUser;
+import com.kang.imploded.security.until.SecurityUntil;
 import com.kang.sys.entity.OperationRecord;
 import com.kang.sys.service.IOperationRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +46,8 @@ public class OperationRecordAspect {
          HttpServletRequest request = ((ServletRequestAttributes)
                  RequestContextHolder.getRequestAttributes())
                  .getRequest();
-         HttpSession session = request.getSession();
-         SecurityUser user = (SecurityUser) session.getAttribute("user");
          OperationRecord record=new OperationRecord();
-         record.setRequestUser(user.getUsername());
+         record.setRequestUser(SecurityUntil.getUserName());
          record.setRequestUrl(request.getRequestURL().toString());
          record.setRequestIp(IpUtil.getIpAdrress(request));
          record.setRequestType(request.getMethod());

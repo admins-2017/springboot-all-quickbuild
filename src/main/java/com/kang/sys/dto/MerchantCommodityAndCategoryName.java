@@ -28,6 +28,9 @@ public class MerchantCommodityAndCategoryName implements Serializable {
     @ApiModelProperty(value = "商品名")
     private String commodityName;
 
+    @ApiModelProperty(value = "商品编码")
+    private String commodityNumber;
+
     @ApiModelProperty(value = "商品图片")
     private String commodityPicture;
 

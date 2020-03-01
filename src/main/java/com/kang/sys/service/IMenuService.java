@@ -1,7 +1,7 @@
 package com.kang.sys.service;
 
-import com.kang.sys.entity.Menu;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.kang.sys.entity.Menu;
 
 /**
  * <p>

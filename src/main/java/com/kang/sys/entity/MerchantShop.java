@@ -29,7 +29,7 @@ public class MerchantShop implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @TableId(value = "shop_id")
-    private Integer shopId;
+    private Long shopId;
 
     @ApiModelProperty(value = "商铺名称")
     private String shopName;
@@ -47,7 +47,7 @@ public class MerchantShop implements Serializable {
 
     @ApiModelProperty(value = "新增商铺用户")
     @TableField(fill = FieldFill.INSERT)
-    private Integer insertUser;
+    private Long insertUser;
 
     @ApiModelProperty(value = "修改商铺时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
@@ -56,10 +56,10 @@ public class MerchantShop implements Serializable {
 
     @ApiModelProperty(value = "修改商铺用户")
     @TableField(fill = FieldFill.UPDATE)
-    private Integer updateUser;
+    private Long updateUser;
 
     @ApiModelProperty(value = "租户标示")
-    private Integer tenantId;
+    private Long tenantId;
 
 
 }

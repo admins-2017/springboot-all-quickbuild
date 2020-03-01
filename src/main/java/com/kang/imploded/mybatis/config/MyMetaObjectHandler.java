@@ -1,6 +1,7 @@
 package com.kang.imploded.mybatis.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.kang.imploded.security.until.SecurityUntil;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -35,9 +36,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         }
         boolean hasSetter2 =metaObject.hasSetter("insertUser");
         if (hasSetter){
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                    .getRequest();
-            Integer insertUser=new Long((Long)request.getSession().getAttribute("user_id")).intValue();
+            Long insertUser=SecurityUntil.getUserId();
             setInsertFieldValByName("insertUser",insertUser,metaObject);
         }
     }
@@ -53,12 +52,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         if (null==val){
             setUpdateFieldValByName("updateTime",LocalDateTime.now(),metaObject);
         }
-
         Object val2=getFieldValByName("updateUser",metaObject);
         if (null==val2){
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                    .getRequest();
-            Integer updateUser=new Long((Long)request.getSession().getAttribute("user_id")).intValue();
+            Long updateUser=SecurityUntil.getUserId();
             setUpdateFieldValByName("updateUser",updateUser,metaObject);
         }
     }

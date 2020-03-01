@@ -29,6 +29,9 @@ public class JWTTokenUtil {
      * @Return Token
      */
     public static String createAccessToken(SecurityUser securityUser){
+//        Map claims = new HashMap();
+//        claims.put("authorities", JSON.toJSONString(securityUser.getAuthorities()));
+//        claims.put("tenant_id",securityUser.getTenantId());
         // 登陆成功生成JWT
         String token = Jwts.builder()
                 // 放入用户名和用户ID
@@ -39,8 +42,10 @@ public class JWTTokenUtil {
                 .setIssuedAt(new Date())
                 // 签发者
                 .setIssuer("kang")
+//                .addClaims(claims)
                 // 自定义属性 放入用户拥有权限
                 .claim("authorities", JSON.toJSONString(securityUser.getAuthorities()))
+                .claim("tenant_id",securityUser.getTenantId())
                 // 失效时间
                 .setExpiration(new Date(System.currentTimeMillis() + JWTConfig.expiration))
                 // 签名算法和密钥

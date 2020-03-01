@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -28,7 +29,8 @@ import lombok.experimental.Accessors;
 public class MerchantCommodityCategory implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @TableId(value = "category_id")
+
+    @TableId(value = "category_id" , type = IdType.AUTO)
     private Integer categoryId;
 
     @ApiModelProperty(value = "菜系/饮料等类别名称")
@@ -37,6 +39,12 @@ public class MerchantCommodityCategory implements Serializable {
     @ApiModelProperty(value = "分类状态  1正常 2为删除")
     private Integer categoryStatus;
 
+    @ApiModelProperty(value = "分类父级id")
+    private Integer categoryPid;
+
+    @ApiModelProperty(value = "分类等级")
+    private Integer categoryLevel;
+
     @ApiModelProperty(value = "新增商品分类时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     @TableField(fill = FieldFill.INSERT)
@@ -44,7 +52,7 @@ public class MerchantCommodityCategory implements Serializable {
 
     @ApiModelProperty(value = "新增商品分类用户")
     @TableField(fill = FieldFill.INSERT)
-    private Integer insertUser;
+    private Long insertUser;
 
     @ApiModelProperty(value = "修改商品分类时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
@@ -53,9 +61,9 @@ public class MerchantCommodityCategory implements Serializable {
 
     @ApiModelProperty(value = "修改商品分类用户")
     @TableField(fill = FieldFill.UPDATE)
-    private Integer updateUser;
+    private Long updateUser;
 
     @ApiModelProperty(value = "租户标记")
-    private Integer tenantId;
+    private Long tenantId;
 
 }

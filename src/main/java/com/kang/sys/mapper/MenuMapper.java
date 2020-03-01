@@ -1,7 +1,7 @@
 package com.kang.sys.mapper;
 
-import com.kang.sys.entity.Menu;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.kang.sys.entity.Menu;
 
 /**
  * <p>

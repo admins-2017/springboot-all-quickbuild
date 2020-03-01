@@ -16,6 +16,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * SpringSecurity配置类
@@ -84,6 +88,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //这里可启用我们自己的登陆验证逻辑
         auth.authenticationProvider(userAuthenticationProvider);
     }
+
+    /**
+     *  允许跨域
+     */
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("*")
+                        .allowedMethods("GET", "HEAD", "POST","PUT", "DELETE", "OPTIONS")
+                        .allowCredentials(false).maxAge(3600);
+            }
+        };
+    }
+
     /**
      * 配置security的控制逻辑
      * @Author Sans
@@ -92,9 +112,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        //开启跨域
+        http.cors().and()
+                // 取消跨站请求伪造防护
+                .csrf().disable()
+                .authorizeRequests()
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 放行Security相关请求
-                .antMatchers("/v2/api-docs", "/definitions/**", "/configuration/ui", "/swagger-resources/**", "/configuration/security", "/swagger-ui.html", "/webjars/**","/swagger-resources/configuration/ui","/swagge‌​r-ui.html")
+                .antMatchers("/v1/**", "/definitions/**", "/configuration/ui", "/swagger-resources/**", "/configuration/security", "/swagger-ui.html", "/webjars/**","/swagger-resources/configuration/ui","/swagge‌​r-ui.html","/druid/**")
                 .anonymous()
                 // 不进行权限验证的请求或资源(从配置文件中读取)
                 .antMatchers(JWTConfig.antMatchers.split(","))
@@ -120,14 +145,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessHandler(userLogoutSuccessHandler)
                 .and()
                 // 配置没有权限自定义处理类
-                .exceptionHandling().accessDeniedHandler(userAuthAccessDeniedHandler)
-                .and()
-                // 取消跨站请求伪造防护
-                .csrf().disable();
+                .exceptionHandling().accessDeniedHandler(userAuthAccessDeniedHandler);
+//                .and().csrf().ignoringAntMatchers("/druid/**");
+
+
         // 基于Token不需要session
 //        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        // 禁用缓存
-        http.headers().cacheControl();
+        // 禁用缓存并开启iframe调用
+        http.headers().cacheControl().and().frameOptions().disable();
         // 添加JWT过滤器
         http.addFilter(new JWTAuthenticationTokenFilter(authenticationManager()));
     }

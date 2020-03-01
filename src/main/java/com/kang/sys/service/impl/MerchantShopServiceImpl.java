@@ -4,7 +4,11 @@ import com.kang.sys.entity.MerchantShop;
 import com.kang.sys.mapper.MerchantShopMapper;
 import com.kang.sys.service.IMerchantShopService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kang.sys.vo.purchase.PurchaseShopVo;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,4 +21,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MerchantShopServiceImpl extends ServiceImpl<MerchantShopMapper, MerchantShop> implements IMerchantShopService {
 
+    @Override
+    public List<PurchaseShopVo> getListByInit() {
+        return this.baseMapper.getListByInit();
+    }
 }

@@ -29,7 +29,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "用户ID")
-    @TableId(value = "user_id", type = IdType.AUTO)
+    @TableId(value = "user_id")
     private Long userId;
 
     @ApiModelProperty(value = "用户名")
@@ -42,6 +42,17 @@ public class User implements Serializable {
     private String status;
 
     @ApiModelProperty(value = "多租户标示")
-    private Integer tenantId;
+    private Long tenantId;
+
+    public User(){
+
+    }
+
+    public User(Long userId,String username,String password,Long tenantId){
+        this.userId=userId;
+        this.username=username;
+        this.password=password;
+        this.tenantId=tenantId;
+    }
 
 }

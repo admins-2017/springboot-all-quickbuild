@@ -9,6 +9,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kang.imploded.security.vo.LoginErrorVo;
 
 import javax.servlet.ServletResponse;
 
@@ -28,18 +29,28 @@ import javax.servlet.ServletResponse;
 public class JSONResult implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    // 定义jackson对象
+    /**
+     * 定义jackson对象
+     */
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    // 响应业务状态
+    /**
+     * 响应业务状态
+     */
     private Integer status;
 
-    // 响应消息
+    /**
+     * 响应消息
+     */
     private String msg;
 
-    // 响应中的数据
+    /**
+     * 响应中的数据
+     */
     private Object data;
-
-    private String ok;	// 不使用
+    /**
+     * 不使用
+     */
+    private String ok;
 
     public static JSONResult build(Integer status, String msg, Object data) {
         return new JSONResult(status, msg, data);
@@ -52,6 +63,11 @@ public class JSONResult implements Serializable {
     public static JSONResult ok() {
         return new JSONResult(null);
     }
+
+    public static JSONResult loginOk() {
+        return new JSONResult(200,"登陆成功",null);
+    }
+
 
     public static JSONResult errorMsg(String msg) {
         return new JSONResult(500, msg, null);
@@ -76,10 +92,6 @@ public class JSONResult implements Serializable {
     public JSONResult() {
 
     }
-
-//    public static LeeJSONResult build(Integer status, String msg) {
-//        return new LeeJSONResult(status, msg, null);
-//    }
 
     public JSONResult(Integer status, String msg, Object data) {
         this.status = status;
@@ -236,7 +248,7 @@ public class JSONResult implements Serializable {
     /**
      * 返回失败示例 用于security
      * @Author Sans
-     * @CreateTime 2019/9/28 11:31
+     * @CreateTime 2019/9/28 11:31oK
      * @Param  resultMap  返回数据MAP
      * @Return Map<String,Object> 返回数据MAP
      */
@@ -255,8 +267,8 @@ public class JSONResult implements Serializable {
      */
     public static Map<String, Object> resultCode(Integer code,String msg){
         Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("message",msg);
-        resultMap.put("code",code);
+        resultMap.put("meta",new LoginErrorVo(code,msg));
+        resultMap.put("data",null);
         return resultMap;
     }
 

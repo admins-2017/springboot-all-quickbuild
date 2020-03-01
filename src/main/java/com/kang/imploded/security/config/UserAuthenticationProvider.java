@@ -5,6 +5,7 @@ import com.kang.imploded.security.entity.SecurityUser;
 import com.kang.imploded.security.service.SecurityUserDetailsService;
 import com.kang.sys.entity.Role;
 import com.kang.sys.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,6 +28,7 @@ import java.util.Set;
  * @CreateTime 2019/10/1 19:11
  */
 @Component
+@Slf4j
 public class UserAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private SecurityUserDetailsService userDetailsService;
@@ -59,10 +61,10 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         // 查询用户角色
         List<Role> roleList = userService.selectRoleByUserId(securityUser.getUserId());
         for (Role role: roleList){
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleCode()));
         }
         securityUser.setAuthorities(authorities);
-
+        log.info("UserAuthenticationProvider : authenticate securityUser ={}",securityUser);
         // 进行登录
         return new UsernamePasswordAuthenticationToken(securityUser, password, authorities);
     }

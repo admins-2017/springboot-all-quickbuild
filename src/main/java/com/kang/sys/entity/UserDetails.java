@@ -1,5 +1,6 @@
 package com.kang.sys.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
@@ -26,7 +27,7 @@ public class UserDetails implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "user_details_id")
+    @TableId(value = "user_details_id",type = IdType.AUTO)
     private Integer userDetailsId;
 
     @ApiModelProperty(value = "用户头像")
@@ -38,14 +39,17 @@ public class UserDetails implements Serializable {
     @ApiModelProperty(value = "用户住址")
     private String userDetailsAddr;
 
+    @ApiModelProperty(value = "用户邮箱")
+    private String userDetailsMail;
+
     @ApiModelProperty(value = "用户联系方式")
     private String userDetailsTel;
 
     @ApiModelProperty(value = "商铺id")
     private Integer shopId;
 
-    @ApiModelProperty(value = "多租户标示")
-    private Integer tenantId;
+    @ApiModelProperty(value = "对应userId")
+    private Long userId;
 
 
 }

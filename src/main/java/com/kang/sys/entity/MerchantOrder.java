@@ -53,7 +53,7 @@ public class MerchantOrder implements Serializable {
     private Integer deskId;
 
     @ApiModelProperty(value = "多租户id")
-    private Integer tenantId;
+    private Long tenantId;
 
 
 }

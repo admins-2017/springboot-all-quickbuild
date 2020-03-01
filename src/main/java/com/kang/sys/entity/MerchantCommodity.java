@@ -30,7 +30,7 @@ import lombok.experimental.Accessors;
 public class MerchantCommodity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @TableId(value = "commodity_id")
+    @TableId(value = "commodity_id",type = IdType.AUTO)
     private Integer commodityId;
 
     @ApiModelProperty(value = "商品名")
@@ -38,6 +38,9 @@ public class MerchantCommodity implements Serializable {
 
     @ApiModelProperty(value = "商品图片")
     private String commodityPicture;
+
+    @ApiModelProperty(value = "商品编码")
+    private String commodityNumber;
 
     @ApiModelProperty(value = "商品价格")
     private BigDecimal commodityPrice;
@@ -61,7 +64,7 @@ public class MerchantCommodity implements Serializable {
 
     @ApiModelProperty(value = "新增商品用户")
     @TableField(fill = FieldFill.INSERT)
-    private Integer insertUser;
+    private Long insertUser;
 
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
@@ -70,10 +73,10 @@ public class MerchantCommodity implements Serializable {
 
     @ApiModelProperty(value = "修改商品用户")
     @TableField(fill = FieldFill.UPDATE)
-    private Integer updateUser;
+    private Long updateUser;
 
     @ApiModelProperty(value = "租户标记")
-    private Integer tenantId;
+    private Long tenantId;
 
 
 }

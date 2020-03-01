@@ -16,4 +16,20 @@
 			LEFT JOIN sys_menu m ON rm.menu_id = m.menu_id
 		WHERE ur.user_id = #{userId}
 	</select>
+
+	<!-- 查询用户的菜单 -->
+	<select id="selectMenuTreeByUserId" resultType="com.kang.sys.vo.MenuTreeVo" parameterType="long">
+		SELECT DISTINCT m.* FROM sys_user_role ur
+			LEFT JOIN sys_role_menu rm ON ur.role_id = rm.role_id
+			LEFT JOIN sys_menu m ON rm.menu_id = m.menu_id
+		WHERE ur.user_id = #{userId}
+	</select>
+
+	<!-- 查询用户的菜单 -->
+	<select id="selectMenuTreeByRoleId" resultType="com.kang.sys.vo.MenuTreeVo" parameterType="long">
+		SELECT DISTINCT m.* FROM sys_user_role ur
+			LEFT JOIN sys_role_menu rm ON ur.role_id = rm.role_id
+			LEFT JOIN sys_menu m ON rm.menu_id = m.menu_id
+		WHERE ur.role_id = #{roleId}
+	</select>
 </mapper>

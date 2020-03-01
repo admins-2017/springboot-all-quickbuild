@@ -57,7 +57,7 @@ public class OperationRecord implements Serializable {
     private String requestMethod;
 
     @ApiModelProperty(value = "多租户标示")
-    private Integer tenantId;
+    private Long tenantId;
 
 
 }
