@@ -4,6 +4,7 @@ import com.kang.sys.entity.UserDetails;
 import com.kang.sys.mapper.UserDetailsMapper;
 import com.kang.sys.service.IUserDetailsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kang.sys.vo.LoginSuccessVo;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,4 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailsServiceImpl extends ServiceImpl<UserDetailsMapper, UserDetails> implements IUserDetailsService {
 
+    @Override
+    public LoginSuccessVo getUserDetailsById(Long userId) {
+        return this.baseMapper.getUserDetailsById(userId);
+    }
 }

@@ -1,6 +1,10 @@
 package com.kang.sys.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.kang.sys.entity.MerchantPurchaseDetails;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -51,6 +55,9 @@ public class PurchaseWithDetailsVo {
     private String username;
 
     @ApiModelProperty(value = "添加订单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime insertTime;
 
     @ApiModelProperty(value = "多个商品购买记录")

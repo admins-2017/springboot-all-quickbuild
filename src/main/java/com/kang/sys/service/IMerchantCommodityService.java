@@ -2,6 +2,7 @@ package com.kang.sys.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kang.imploded.security.until.SecurityUntil;
 import com.kang.sys.entity.MerchantCommodity;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kang.sys.vo.db.CommodityWithCategory;
@@ -26,11 +27,13 @@ public interface IMerchantCommodityService extends IService<MerchantCommodity> {
      * @param commodityStatus
      * @return
      */
-    IPage<CommodityWithCategory> selectByCommodityStatus(Page<CommodityWithCategory> pages,Integer commodityStatus);
+    IPage<CommodityWithCategory> selectByCommodityStatus(Page<CommodityWithCategory> pages, Integer commodityStatus);
 
     /**
      * 用于加载进货单初始供应商
      * @return
      */
     List<PurchaseCommodityVo> getListByInit();
+
+
 }

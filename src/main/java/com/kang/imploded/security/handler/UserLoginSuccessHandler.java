@@ -6,6 +6,8 @@ import com.kang.imploded.redis.entity.SecurityWithToken;
 import com.kang.imploded.security.entity.SecurityUser;
 import com.kang.imploded.security.jwt.JWTConfig;
 import com.kang.imploded.security.jwt.JWTTokenUtil;
+import com.kang.sys.enums.RedisIndexEnum;
+import com.kang.sys.service.IUserDetailsService;
 import com.kang.sys.vo.LoginSuccessVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +30,8 @@ import java.util.Map;
 public class UserLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Autowired
+    private IUserDetailsService detailsService;
+    @Autowired
     private RedisOperator redisOperator;
 
     /**
@@ -43,25 +47,18 @@ public class UserLoginSuccessHandler implements AuthenticationSuccessHandler {
         token = JWTConfig.tokenPrefix + token;
         //为前端提供返回vo
         LoginSuccessVo successVo = new LoginSuccessVo();
+        successVo=detailsService.getUserDetailsById(selfUserEntity.getUserId());
         BeanUtils.copyProperties(selfUserEntity,successVo);
         successVo.setToken(token);
-        //暂时写死
-        successVo.setEmail("11067985926@qq.com");
-        successVo.setMobile("15149633654");
+
+        if (redisOperator.exists(RedisIndexEnum.indexDetailsRedisKey.getCode())) {
+            redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(), "day", 1);
+            redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(), "month", 1);
+        }
         // 封装返回参数
-        Map<String,Object> resultData = new HashMap<>();
+        Map<String,Object> resultData = new HashMap<>(3);
         resultData.put("meta",JSONResult.loginOk());
         resultData.put("data",successVo);
-
-        //封装对象保存到redis
-        SecurityWithToken securityWithToken=new SecurityWithToken();
-        BeanUtils.copyProperties(selfUserEntity,securityWithToken);
-        securityWithToken.setToken(token);
-        request.getSession().setAttribute("user",selfUserEntity);
-        request.getSession().setAttribute("user_id",selfUserEntity.getUserId());
-        request.getSession().setAttribute("tenant_id",selfUserEntity.getTenantId());
-        String userKey="user:token:"+selfUserEntity.getUserId();
-        redisOperator.setObj(userKey,securityWithToken,604800);
 
         JSONResult.responseJson(response,resultData);
     }

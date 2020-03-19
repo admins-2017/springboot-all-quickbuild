@@ -58,11 +58,9 @@ public interface IUserService extends IService<User> {
 
 
     /**
-     * 根据角色id查询权限
-     * @Author Sans
-     * @CreateTime 2019/9/18 18:01
-     * @Param  userId 用户ID
-     * @Return List<SysMenuEntity> 角色名集合
+     * 根据角色id查询对应权限
+     * @param userId
+     * @return
      */
     List<MenuTreeVo> selectMenuTreeByRoleId(Long userId);
 

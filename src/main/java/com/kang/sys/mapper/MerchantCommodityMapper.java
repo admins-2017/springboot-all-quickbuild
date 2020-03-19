@@ -44,4 +44,5 @@ public interface MerchantCommodityMapper extends BaseMapper<MerchantCommodity> {
     @Select("select commodity_id,commodity_name,commodity_number,commodity_picture,commodity_unit,commodity_description\n" +
             "\tfrom merchant_commodity where commodity_status!=2")
     List<PurchaseCommodityVo> getListByInit();
+
 }

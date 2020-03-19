@@ -6,19 +6,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kang.imploded.aspect.SysLog;
 import com.kang.imploded.json.JSONResult;
+import com.kang.imploded.security.until.SecurityUntil;
 import com.kang.sys.dto.RecordDto;
 import com.kang.sys.entity.OperationRecord;
 import com.kang.sys.service.IOperationRecordService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 /**
  * <p>
@@ -53,8 +47,8 @@ public class OperationRecordController {
     @ApiOperation(value = "获取所有操作记录",notes = "获取所有的操作记录")
     public JSONResult getAllRecord(@PathVariable Integer page,@PathVariable Integer size){
         Page<OperationRecord> recordPage = new Page<>(page,size);
-        IPage<OperationRecord> recordIPage = recordService.page(recordPage);
-        return JSONResult.ok(recordIPage);
+        IPage<OperationRecord> recordList = recordService.page(recordPage);
+        return JSONResult.ok(recordList);
     }
 
     @DeleteMapping("/{id}")
@@ -64,6 +58,17 @@ public class OperationRecordController {
         boolean b = recordService.removeById(id);
         return JSONResult.ok(b);
     }
+
+    @GetMapping("/user/{page}/{size}")
+    @SysLog(description ="查找操作记录")
+    @ApiOperation(value = "获取操作记录",notes = "根据记录id获取对应的操作记录")
+    public JSONResult getRecordByUser(@PathVariable Integer page,@PathVariable Integer size){
+        IPage<OperationRecord> records = recordService.page(new Page<>(page,size),new QueryWrapper<OperationRecord>()
+                .eq("request_user", SecurityUntil.getUserName()).orderByDesc("request_time")
+        );
+        return JSONResult.ok(records);
+    }
+
 
     @Autowired
     public void setRecordService(IOperationRecordService recordService) {

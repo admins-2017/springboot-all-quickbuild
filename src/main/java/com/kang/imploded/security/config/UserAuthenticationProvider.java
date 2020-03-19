@@ -2,6 +2,8 @@ package com.kang.imploded.security.config;
 
 import com.kang.imploded.redis.RedisOperator;
 import com.kang.imploded.security.entity.SecurityUser;
+import com.kang.imploded.security.handler.LoginCodeException;
+import com.kang.imploded.security.handler.LoginResultException;
 import com.kang.imploded.security.service.SecurityUserDetailsService;
 import com.kang.sys.entity.Role;
 import com.kang.sys.service.IUserService;
@@ -18,6 +20,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,12 +45,23 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        HttpServletRequest request = ((ServletRequestAttributes)
+                RequestContextHolder.getRequestAttributes())
+                .getRequest();
+        String code=request.getParameter("code");
+        String result = request.getParameter("result");
         // 获取表单输入中返回的用户名
         String userName = (String) authentication.getPrincipal();
         // 获取表单中输入的密码
         String password = (String) authentication.getCredentials();
         // 查询用户是否存在
         SecurityUser securityUser = userDetailsService.loadUserByUsername(userName);
+        if (!redisOperator.exists(code)){
+            throw new LoginCodeException("验证码不存在,请刷新验证码");
+        }
+        if (!redisOperator.getString(code).equals(result)){
+            throw new LoginResultException("验证码错误");
+        }
         if (securityUser == null) {
             throw new UsernameNotFoundException("用户名不存在");
         }
@@ -64,7 +81,6 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleCode()));
         }
         securityUser.setAuthorities(authorities);
-        log.info("UserAuthenticationProvider : authenticate securityUser ={}",securityUser);
         // 进行登录
         return new UsernamePasswordAuthenticationToken(securityUser, password, authorities);
     }

@@ -3,6 +3,7 @@ package com.kang.imploded.security.until;
 import com.kang.imploded.security.entity.SecurityUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * @Author kang
  * @CreateTime 2019/11/06 13:16
  */
+
 public class SecurityUntil {
 
     /**

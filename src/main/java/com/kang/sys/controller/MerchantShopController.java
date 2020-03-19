@@ -5,9 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kang.imploded.json.JSONResult;
+import com.kang.imploded.redis.RedisOperator;
+import com.kang.imploded.security.until.SecurityUntil;
 import com.kang.imploded.utils.IdRandom;
 import com.kang.sys.dto.MerchantShopDto;
 import com.kang.sys.entity.MerchantShop;
+import com.kang.sys.enums.RedisIndexEnum;
 import com.kang.sys.enums.SysEnum;
 import com.kang.sys.service.IMerchantInventoryService;
 import com.kang.sys.service.IMerchantShopService;
@@ -16,10 +19,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 /**
  * <p>
@@ -32,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/shop")
 @Api(value = "商铺controller",tags = "商铺对应操作的controller")
+@Slf4j
 public class MerchantShopController {
 
 
@@ -41,6 +48,11 @@ public class MerchantShopController {
     @Autowired
     private IMerchantInventoryService inventoryService;
 
+    @Autowired
+    private RedisOperator redisOperator;
+
+    private String keyName="merchant-shop:";
+
     @ApiOperation(value = "新增商铺",notes = "添加商铺，新增时间，用户，修改时间，用户,租户id不需要添加")
     @PostMapping("/")
     public JSONResult addShop(@RequestBody MerchantShopDto merchantShop){
@@ -48,6 +60,10 @@ public class MerchantShopController {
         BeanUtils.copyProperties(merchantShop,shop);
         shop.setShopId(Long.parseLong(IdRandom.getRandom()));
         boolean save = shopService.save(shop);
+        if (save){
+            clearCache();
+            redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(),"startShop",1);
+        }
         return JSONResult.ok(save);
     }
 
@@ -60,6 +76,9 @@ public class MerchantShopController {
         UpdateWrapper<MerchantShop> wrapper = new UpdateWrapper<>();
         wrapper.set("shop_status", SysEnum.shopObsolete.getCode()).eq("shop_id",sid);
         boolean update = shopService.update(wrapper);
+        if (update){
+            clearCache();
+        }
         return JSONResult.ok(update);
     }
 
@@ -69,9 +88,15 @@ public class MerchantShopController {
     )
     @DeleteMapping("/rest/{sid}")
     public JSONResult restShop(@PathVariable(value = "sid") Long sid){
+        clearCache();
+
         UpdateWrapper<MerchantShop> wrapper = new UpdateWrapper<>();
         wrapper.set("shop_status", SysEnum.shopRest.getCode()).eq("shop_id",sid);
         boolean update = shopService.update(wrapper);
+        if (update){
+            redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(),"restShop",1);
+            redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(),"startShop",-1);
+        }
         return JSONResult.ok(update);
     }
 
@@ -84,12 +109,18 @@ public class MerchantShopController {
         UpdateWrapper<MerchantShop> wrapper = new UpdateWrapper<>();
         wrapper.set("shop_status", SysEnum.shopNormal.getCode()).eq("shop_id",sid);
         boolean update = shopService.update(wrapper);
+        if (update){
+            clearCache();
+            redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(),"restShop",-1);
+            redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(),"startShop",1);
+        }
         return JSONResult.ok(update);
     }
 
     @ApiOperation(value = "修改商铺",notes = "修改商铺，根据商铺id修改商铺信息")
     @PutMapping("/")
     public JSONResult updateShop(@RequestBody MerchantShopDto shop){
+        clearCache();
         UpdateWrapper<MerchantShop> wrapper = new UpdateWrapper<>();
         wrapper.eq("shop_id",shop.getShopId());
         MerchantShop merchantShop = new MerchantShop();
@@ -107,9 +138,15 @@ public class MerchantShopController {
     @GetMapping("/{page}/{size}")
     public JSONResult getAllShop(@PathVariable(value = "page") Integer page,
                                   @PathVariable(value="size") Integer size){
-        Page<MerchantShop> shopPage=new Page<>(page,size);
-        IPage<MerchantShop> merchantShopIPage = shopService.page(shopPage);
-        return JSONResult.ok(merchantShopIPage);
+        String key = keyName+ SecurityUntil.getTenantId()+':'+page+':'+size;
+        if (redisOperator.exists(key)){
+            return JSONResult.ok(redisOperator.getObj(key));
+        }else {
+            Page<MerchantShop> shopPage = new Page<>(page, size);
+            IPage<MerchantShop> merchantShopIPage = shopService.page(shopPage);
+            redisOperator.setObj(key,merchantShopIPage,3);
+            return JSONResult.ok(merchantShopIPage);
+        }
     }
 
     @ApiOperation(value = "获取商铺下所有商品",notes = "根据商铺id获取对应的商铺信息")
@@ -120,8 +157,20 @@ public class MerchantShopController {
     })
     @GetMapping("/{page}/{size}/{shopId}")
     public JSONResult getCommodityWithShop(@PathVariable Integer page,@PathVariable Integer size,@PathVariable Long shopId){
-        Page<ShopWithCommodity> shopWithCommodityPage = new Page<>(page,size);
-        IPage<ShopWithCommodity> iPage= inventoryService.getCommodityWithShopById(shopWithCommodityPage,shopId);
-        return JSONResult.ok(iPage);
+        String key = keyName+ SecurityUntil.getTenantId()+":shop-commodity:"+shopId+':'+page+':'+size;
+        if (redisOperator.exists(key)){
+            return JSONResult.ok(redisOperator.getObj(key));
+        }else {
+            Page<ShopWithCommodity> shopWithCommodityPage = new Page<>(page, size);
+            IPage<ShopWithCommodity> iPage = inventoryService.getCommodityWithShopById(shopWithCommodityPage, shopId);
+            redisOperator.setObj(key,iPage,2);
+            return JSONResult.ok(iPage);
+        }
+    }
+
+    public void clearCache(){
+        String key = keyName+ SecurityUntil.getTenantId()+':';
+        Set<String> keys = redisOperator.keys(key+"*");
+        redisOperator.delKeys(keys);
     }
 }

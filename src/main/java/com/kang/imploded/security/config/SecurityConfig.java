@@ -119,7 +119,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 放行Security相关请求
-                .antMatchers("/v1/**", "/definitions/**", "/configuration/ui", "/swagger-resources/**", "/configuration/security", "/swagger-ui.html", "/webjars/**","/swagger-resources/configuration/ui","/swagge‌​r-ui.html","/druid/**")
+                .antMatchers("/user/code","/v1/**", "/definitions/**", "/configuration/ui", "/swagger-resources/**", "/configuration/security", "/swagger-ui.html", "/webjars/**","/swagger-resources/configuration/ui","/swagge‌​r-ui.html","/druid/**")
                 .anonymous()
                 // 不进行权限验证的请求或资源(从配置文件中读取)
                 .antMatchers(JWTConfig.antMatchers.split(","))

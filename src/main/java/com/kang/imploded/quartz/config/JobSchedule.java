@@ -23,8 +23,6 @@ public class JobSchedule implements CommandLineRunner {
      */
     @Override
     public void run(String... strings) throws Exception {
-        System.out.println("任务调度开始==============任务调度开始");
         taskService.timingTask();
-        System.out.println("任务调度结束==============任务调度结束");
     }
 }

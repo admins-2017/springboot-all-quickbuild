@@ -40,6 +40,14 @@ public class UserLoginFailureHandler implements AuthenticationFailureHandler {
             log.info("【登录失败】"+exception.getMessage());
             JSONResult.responseJson(response,JSONResult.resultCode(500,"用户名密码不正确"));
         }
+        if (exception instanceof LoginCodeException){
+            log.info("【登录失败】"+exception.getMessage());
+            JSONResult.responseJson(response,JSONResult.resultCode(500,"验证码不存在,请刷新验证码"));
+        }
+        if (exception instanceof LoginResultException){
+            log.info("【登录失败】"+exception.getMessage());
+            JSONResult.responseJson(response,JSONResult.resultCode(500,"验证码错误"));
+        }
         JSONResult.responseJson(response,JSONResult.resultCode(500,"登录失败"));
     }
 }

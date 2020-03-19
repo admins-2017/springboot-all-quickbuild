@@ -1,5 +1,6 @@
 package com.kang.sys.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -18,12 +19,29 @@ public class LoginSuccessVo {
      */
     private String username;
 
-    private String email;
-
-    private String mobile;
-
-    private Integer tenantId;
+    /**
+     * 多租户标示
+     */
+    private Long tenantId;
 
     private String token;
+
+    @ApiModelProperty(value = "用户头像")
+    private String userDetailsUrl;
+
+    @ApiModelProperty(value = "用户性别 1 男 2女")
+    private Integer userDetailsSex;
+
+    @ApiModelProperty(value = "用户住址")
+    private String userDetailsAddr;
+
+    @ApiModelProperty(value = "用户邮箱")
+    private String userDetailsMail;
+
+    @ApiModelProperty(value = "用户联系方式")
+    private String userDetailsTel;
+
+    @ApiModelProperty(value = "所属商铺名称")
+    private String shopName;
 
 }

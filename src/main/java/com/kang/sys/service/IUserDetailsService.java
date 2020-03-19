@@ -2,6 +2,7 @@ package com.kang.sys.service;
 
 import com.kang.sys.entity.UserDetails;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.kang.sys.vo.LoginSuccessVo;
 
 /**
  * <p>
@@ -13,4 +14,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IUserDetailsService extends IService<UserDetails> {
 
+    /**
+     * 根据id查询用户详情
+     * @param userId
+     * @return
+     */
+    LoginSuccessVo getUserDetailsById(Long userId);
 }

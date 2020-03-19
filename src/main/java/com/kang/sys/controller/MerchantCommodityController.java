@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -50,7 +51,6 @@ public class MerchantCommodityController {
        @ApiImplicitParam(name = "cid",value = "商品id",dataType = "int")
     )
     @GetMapping("/{cid}")
-    @PreAuthorize("hasPermission('21','sys:user:info')")
     @SysLog(description ="查询商品")
     public JSONResult getCommodity(@PathVariable Integer cid){
         return JSONResult.ok(commodityService.getById(cid));
@@ -66,6 +66,7 @@ public class MerchantCommodityController {
     public JSONResult getCommodityAllWithShelfCommodity(@PathVariable Integer page,@PathVariable Integer size){
         Page<CommodityWithCategory> pages=new Page<>(page,size);
         IPage<CommodityWithCategory> commodityList = commodityService.selectByCommodityStatus(pages,CommodityEnum.commodityShelf.getCode());
+
         return JSONResult.ok(commodityList);
     }
 
@@ -137,15 +138,14 @@ public class MerchantCommodityController {
     })
     @GetMapping("/like/{page}/{size}/{likeName}")
     @SysLog(description ="根据条件查询商品")
+    @Cacheable(cacheNames = "shop:commodity" , key = "#page+':'+#size+':'+#likeName")
     public JSONResult getCommodityWithLikeName(@PathVariable Long page,@PathVariable Long size,@PathVariable String likeName){
         Page<MerchantCommodity> pages=new Page<>(page,size);
-        List<MerchantCommodity> commodities = commodityService.list(new QueryWrapper<MerchantCommodity>()
+        IPage<MerchantCommodity> commodities = commodityService.page(pages,new QueryWrapper<MerchantCommodity>()
                 .like("commodity_name", likeName)
                 .or().like("commodity_description", likeName)
                 .or().like("commodity_number", likeName));
-        pages.setTotal(commodities.size());
-        pages.setRecords(commodities);
-        return JSONResult.ok(pages);
+        return JSONResult.ok(commodities);
     }
 
 

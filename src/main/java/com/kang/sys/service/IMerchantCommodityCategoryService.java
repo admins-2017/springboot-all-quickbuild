@@ -22,6 +22,7 @@ public interface IMerchantCommodityCategoryService extends IService<MerchantComm
     /**
      * 根据分类id获取对应的分类下的所有商品
      * @param categoryId
+     * @param pages
      * @return List<MerchantCommodity>
      */
     IPage<MerchantCommodityAndCategoryName> getCommodityWithCategory(Page<MerchantCommodityAndCategoryName> pages,Integer categoryId);
@@ -32,4 +33,5 @@ public interface IMerchantCommodityCategoryService extends IService<MerchantComm
      * @return
      */
     IPage<MerchantCommodityCategoryVo> getAllCategoryWithPage(Page<MerchantCommodityCategoryVo> categoryPage);
+
 }

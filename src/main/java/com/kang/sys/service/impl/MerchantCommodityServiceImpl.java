@@ -9,6 +9,8 @@ import com.kang.sys.service.IMerchantCommodityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kang.sys.vo.db.CommodityWithCategory;
 import com.kang.sys.vo.purchase.PurchaseCommodityVo;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +25,12 @@ import java.util.List;
  * @since 2019-11-18
  */
 @Service
+@CacheConfig(cacheNames = "shop:commodity")
 public class MerchantCommodityServiceImpl extends ServiceImpl<MerchantCommodityMapper, MerchantCommodity> implements IMerchantCommodityService {
 
+
     @Override
+    @Cacheable(key = "#pages.current+':'+#pages.size+':'+#commodityStatus")
     public IPage<CommodityWithCategory> selectByCommodityStatus(Page<CommodityWithCategory> pages, Integer commodityStatus) {
         return this.baseMapper.selectByCommodityStatus(pages,commodityStatus, SecurityUntil.getTenantId());
     }
@@ -34,4 +39,6 @@ public class MerchantCommodityServiceImpl extends ServiceImpl<MerchantCommodityM
     public List<PurchaseCommodityVo> getListByInit() {
         return this.baseMapper.getListByInit();
     }
+
+
 }

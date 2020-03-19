@@ -102,10 +102,4 @@ public class AdminController {
         return JSONResult.ok(roleList);
     }
 
-
-    @RequestMapping("testSecurity")
-    public void testSecurityUser(){
-        SecurityUser securityUser =SecurityUntil.getUserInfo();
-        System.out.println(securityUser.toString());
-    }
 }

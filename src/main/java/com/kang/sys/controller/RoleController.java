@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kang.imploded.aspect.SysLog;
 import com.kang.imploded.json.JSONResult;
+import com.kang.imploded.redis.RedisOperator;
 import com.kang.imploded.security.until.SecurityUntil;
 import com.kang.imploded.utils.ParseMenuTreeUtil;
 import com.kang.sys.dto.AssigningRolesDto;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -53,10 +55,18 @@ public class RoleController {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private RedisOperator redisOperator;
+
+    private String keyName = "shop:role:";
+
     @ApiOperation(value = "新增角色",notes = "添加角色，新增时间，用户，修改时间，用户,租户id不需要添加")
     @PostMapping("/")
     @SysLog(description ="添加新角色")
     public JSONResult addRole(@RequestBody UserRoleDto userRoleDto){
+        String key = keyName+SecurityUntil.getTenantId()+':';
+        Set<String> keys = redisOperator.keys(key);
+        redisOperator.delKeys(keys);
         roleService.addRole(userRoleDto);
         return JSONResult.ok();
     }
@@ -76,41 +86,56 @@ public class RoleController {
     @GetMapping("/{page}/{size}")
     @SysLog(description ="查询所有角色")
     public JSONResult queryRoleWithTenant(@PathVariable Integer page,@PathVariable Integer size){
-        Page<RoleMenuVo> pages = new Page<>(page, size);
-        List<Role> list = roleService.list(new QueryWrapper<Role>().
-                select("role_id", "role_name", "role_code", "role_description")
-                .eq("tenant_id", SecurityUntil.getTenantId()).eq("del_flag", 0));
-        List<RoleMenuVo> roleMenuVoList= new ArrayList<>();
-        for (Role role: list) {
-            RoleMenuVo roleMenuVo = new RoleMenuVo();
-            BeanUtils.copyProperties(role,roleMenuVo);
+        String key = keyName+SecurityUntil.getTenantId()+':'+page+':'+size;
+        if (redisOperator.exists(key)){
+            return JSONResult.ok(redisOperator.getObj(key));
+        }else {
+            Page<RoleMenuVo> pages = new Page<>(page, size);
+            List<Role> list = roleService.list(new QueryWrapper<Role>().
+                    select("role_id", "role_name", "role_code", "role_description")
+                    .eq("tenant_id", SecurityUntil.getTenantId()).eq("del_flag", 0));
+            List<RoleMenuVo> roleMenuVoList = new ArrayList<>();
+            for (Role role : list) {
+                RoleMenuVo roleMenuVo = new RoleMenuVo();
+                BeanUtils.copyProperties(role, roleMenuVo);
 
-            List<MenuTreeVo> menus = userService.selectMenuTreeByRoleId(role.getRoleId());
-            List<MenuTreeVo> menuList = new ArrayList<>();
-            if (menus.get(0) != null) {
-                menuList = ParseMenuTreeUtil.parseMenuTree(menus);
+                List<MenuTreeVo> menus = userService.selectMenuTreeByRoleId(role.getRoleId());
+                List<MenuTreeVo> menuList = new ArrayList<>();
+                if (menus.get(0) != null) {
+                    menuList = ParseMenuTreeUtil.parseMenuTree(menus);
+                }
+
+                roleMenuVo.setChildren(menuList);
+                roleMenuVoList.add(roleMenuVo);
+
             }
-
-            roleMenuVo.setChildren(menuList);
-            roleMenuVoList.add(roleMenuVo);
-
+            Page<RoleMenuVo> roleMenuVoPage = pages.setRecords(roleMenuVoList);
+            redisOperator.setObj(key,roleMenuVoPage,24);
+            return JSONResult.ok(roleMenuVoPage);
         }
-        Page<RoleMenuVo> roleMenuVoPage = pages.setRecords(roleMenuVoList);
-        return JSONResult.ok(roleMenuVoPage);
     }
 
     @ApiOperation(value = "获取当前租户下所有角色 不分页",notes = "添加角色，新增时间，用户，修改时间，用户,租户id不需要添加")
     @GetMapping("/")
     @SysLog(description ="查询所有角色")
     public JSONResult queryRoleAll(){
-        List<Role> roleList = roleService.list(new QueryWrapper<Role>().eq("tenant_id", SecurityUntil.getTenantId()).eq("del_flag", 0));
-        return JSONResult.ok(roleList);
+        String key = keyName+SecurityUntil.getTenantId()+':'+"all";
+        if (redisOperator.exists(key)){
+            return JSONResult.ok(redisOperator.getObj(key));
+        }else {
+            List<Role> roleList = roleService.list(new QueryWrapper<Role>().eq("tenant_id", SecurityUntil.getTenantId()).eq("del_flag", 0));
+            redisOperator.setObj(key,roleList,24);
+            return JSONResult.ok(roleList);
+        }
     }
 
     @ApiOperation(value = "根据角色id进行修改",notes = "添加角色，新增时间，用户，修改时间，用户,租户id不需要添加")
     @PutMapping("/")
     @SysLog(description ="修改角色信息")
     public JSONResult updateRole(UpdateOrDeleteRoleDto roleDto){
+        String key = keyName+SecurityUntil.getTenantId()+':';
+        Set<String> keys = redisOperator.keys(key);
+        redisOperator.delKeys(keys);
         Role role = new Role();
         BeanUtils.copyProperties(roleDto,role);
         roleService.update(role,new UpdateWrapper<Role>().eq("role_id",roleDto.getRoleId()));
@@ -121,6 +146,9 @@ public class RoleController {
     @PutMapping("/status")
     @SysLog(description ="启停角色")
     public JSONResult updateRoleStatus(UpdateOrDeleteRoleDto roleDto){
+        String key = keyName+SecurityUntil.getTenantId()+':';
+        Set<String> keys = redisOperator.keys(key);
+        redisOperator.delKeys(keys);
         roleService.update(new UpdateWrapper<Role>().set("del_flag",roleDto.getRoleDelFlag()).eq("role_id",roleDto.getRoleId()));
         return JSONResult.ok();
     }
@@ -132,6 +160,9 @@ public class RoleController {
     @DeleteMapping("/{roleId}")
     @SysLog(description ="删除角色")
     public JSONResult delRoleAndUpdateUserRole(@PathVariable Long roleId){
+        String key = keyName+SecurityUntil.getTenantId()+':';
+        Set<String> keys = redisOperator.keys(key);
+        redisOperator.delKeys(keys);
         roleService.delRole(roleId);
         return JSONResult.ok("删除角色成功");
     }
@@ -145,6 +176,9 @@ public class RoleController {
     @PostMapping("/AssigningRoles")
     @SysLog(description ="为用户添加角色信息")
     public JSONResult addRoleWithUser(@RequestBody UserRole userRole){
+        String key = keyName+SecurityUntil.getTenantId()+':';
+        Set<String> keys = redisOperator.keys(key);
+        redisOperator.delKeys(keys);
         boolean save = userRoleService.save(userRole);
         return JSONResult.ok(save);
     }
