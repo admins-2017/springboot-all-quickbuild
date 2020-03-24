@@ -1,5 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kang.sys.mapper.MerchantOrderMapper">
+    
+    <resultMap id="getPage" type="com.kang.sys.vo.order.OrderWithDetailsVo">
+        <id column="order_id" property="orderId"/>
+        <result column="order_number" property="orderNumber"/>
+        <result column="order_total_amount" property="orderTotalAmount"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="order_type" property="orderType"/>
+        <result column="order_pay" property="orderPay"/>
+        <result column="order_unpaid" property="orderUnpaid"/>
+        <result column="order_settle_status" property="orderSettleStatus"/>
+        <result column="order_pay_type" property="orderPayType"/>
+        <result column="order_remark" property="orderRemark"/>
+        <result column="shop_name" property="shopName"/>
+        <result column="client_name" property="clientName"/>
+        <result column="username" property="username"/>
+        <result column="insert_time" property="insertTime"/>
+        <!-- 根据 getPageWithConditions 方法返回值再到MerchantPurchaseDetailsMapper 中的getDetailsByNumber 查询 返回值添加到chidren中 传递参数为getPageWithConditions查询出来结果中的purchase_number字段的值-->
+        <collection property="children" ofType="com.kang.sys.vo.order.OrderDetailsVo"
+                    select="com.kang.sys.mapper.MerchantOrderDetailsMapper.getDetailsByNumber" column="order_number">
+        </collection>
+    </resultMap>
 
+    <select id="getOrderByStatus" resultMap="getPage" parameterType="boolean">
+        select mr.order_id,mr.order_number,mr.order_total_amount,mr.order_status,mr.order_type
+		,mr.order_pay,mr.order_unpaid,mr.order_settle_status,mr.order_pay_type,mr.order_remark
+		,ms.shop_name,mc.client_name,su.username,mr.insert_time from merchant_order mr
+		LEFT JOIN merchant_shop ms
+		ON mr.shop_id = ms.shop_id
+		LEFT JOIN merchant_client mc
+		ON mr.client_id = mc.client_id
+		LEFT JOIN sys_user su
+		ON mr.insert_user = su.user_id
+		WHERE mr.order_status = #{pStatus}
+    </select>
+
+    <select id="getPageWithConditions" resultMap="getPage" parameterType="com.kang.sys.dto.QueryOrderDto">
+        select mr.order_id,mr.order_number,mr.order_total_amount,mr.order_status,mr.order_type
+		,mr.order_pay,mr.order_unpaid,mr.order_settle_status,mr.order_pay_type,mr.order_remark
+		,ms.shop_name,mc.client_name,su.username,mr.insert_time from merchant_order mr
+		LEFT JOIN merchant_shop ms
+		ON mr.shop_id = ms.shop_id
+		LEFT JOIN merchant_client mc
+		ON mr.client_id = mc.client_id
+		LEFT JOIN sys_user su
+		ON mr.insert_user = su.user_id
+		WHERE 1=1
+        <if test="dto.orderNumber != null">
+            AND mr.order_number = #{dto.orderNumber}
+        </if>
+        <if test="dto.orderSettleStatus != null">
+            AND mr.order_settle_status = #{dto.orderSettleStatus}
+        </if>
+        <if test="dto.orderPayType != null">
+            AND mr.order_pay_type = #{dto.orderPayType}
+        </if>
+        <if test="dto.insertTime != null">
+            AND mr.insert_time like CONCAT('%',#{dto.insertTime},'%')
+        </if>
+        <if test="dto.clientName != null">
+            AND mc.client_name like CONCAT('%', #{dto.clientName},'%')
+        </if>
+        <if test="dto.shopName != null">
+            AND ms.shop_name like CONCAT('%', #{dto.shopName},'%')
+        </if>
+        <if test="dto.username != null">
+            AND su.username = #{dto.username}
+        </if>
+    </select>
 </mapper>
