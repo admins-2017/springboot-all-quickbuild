@@ -2,11 +2,13 @@ package com.kang.sys.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kang.imploded.aspect.SysLog;
 import com.kang.imploded.json.JSONResult;
 import com.kang.imploded.redis.RedisOperator;
 import com.kang.imploded.security.until.SecurityUntil;
 import com.kang.imploded.utils.ParseMenuTreeUtil;
+import com.kang.sys.dto.RoleMenuDto;
 import com.kang.sys.entity.Menu;
 import com.kang.sys.entity.RoleMenu;
 import com.kang.sys.service.IMenuService;
@@ -17,8 +19,10 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -91,8 +95,15 @@ public class MenuController {
      */
     @PostMapping("assignPermissions")
     @SysLog(description ="为角色添加权限")
-    public JSONResult addPermissionsWithRole(@RequestBody List<RoleMenu> roleMenuList){
-        roleMenuService.saveOrUpdateBatch(roleMenuList);
+    @Transactional(rollbackFor = Exception.class)
+    public JSONResult addPermissionsWithRole(@RequestBody RoleMenuDto roleMenuDto){
+        Long roleId =roleMenuDto.getRoleId();
+        roleMenuService.remove(new QueryWrapper<RoleMenu>().eq("role_id",roleId));
+        List<RoleMenu> menus = new ArrayList<>();
+        for (Long menu:roleMenuDto.getMenuIds()) {
+            menus.add(new RoleMenu(roleId,menu));
+        }
+        roleMenuService.saveBatch(menus);
         return JSONResult.ok();
     }
 }
