@@ -40,7 +40,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/commodity")
-@Api(value = "商品controller",tags = "商品对应操作的controller")
+@Api(value = "商品controller",tags = "商品对应操作")
 public class MerchantCommodityController {
 
     @Autowired

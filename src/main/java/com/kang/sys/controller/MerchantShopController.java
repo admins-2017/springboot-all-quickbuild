@@ -37,7 +37,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/shop")
-@Api(value = "商铺controller",tags = "商铺对应操作的controller")
+@Api(value = "商铺controller",tags = "商铺对应操作")
 @Slf4j
 public class MerchantShopController {
 

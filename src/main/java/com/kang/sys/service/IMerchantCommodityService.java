@@ -35,5 +35,11 @@ public interface IMerchantCommodityService extends IService<MerchantCommodity> {
      */
     List<PurchaseCommodityVo> getListByInit();
 
+    /**
+     * 用于加载初始化销售单
+     * @return
+     */
+    List<PurchaseCommodityVo> getListByInitWithOrder();
+
 
 }

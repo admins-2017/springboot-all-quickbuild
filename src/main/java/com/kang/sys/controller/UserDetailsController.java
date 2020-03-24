@@ -6,6 +6,7 @@ import com.kang.imploded.aspect.SysLog;
 import com.kang.imploded.json.JSONResult;
 import com.kang.sys.entity.UserDetails;
 import com.kang.sys.service.IUserDetailsService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/user/details")
+@Api(value = "用户详情 controller",tags = "用户详情对应操作")
 public class UserDetailsController {
 
     @Autowired

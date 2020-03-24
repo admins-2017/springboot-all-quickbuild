@@ -2,6 +2,7 @@ package com.kang.sys.controller;
 
 
 import com.kang.imploded.json.JSONResult;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/sys/schedule-job")
+@Api(value = "定时任务controller",tags = "定时任务对应操作")
 public class ScheduleJobController {
 
     @ApiOperation(value = "新增商品",notes = "添加商品，新增时间，用户，修改时间，用户,租户id不需要添加")

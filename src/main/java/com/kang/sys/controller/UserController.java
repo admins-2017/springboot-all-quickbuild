@@ -35,7 +35,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/user")
-@Api("用户详情")
+@Api(value = "用户controller",tags = "用户对应操作")
 public class UserController {
 
     @Autowired

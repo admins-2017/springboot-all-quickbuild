@@ -28,14 +28,16 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/index")
-@Api("首页详情")
+@Api(value = "首页controller",tags = "首页对应操作")
 @Slf4j
 public class IndexController {
 
     @Autowired
     private IMerchantPurchaseService purchaseService;
+
     @Autowired
     private IMerchantOrderService orderService;
+
     @Autowired
     private RedisOperator redisOperator;
     @Autowired
@@ -57,7 +59,7 @@ public class IndexController {
             int restShop = shopService.count(new QueryWrapper<MerchantShop>().eq("shop_status", 2));
             Map<String,Object> map = new HashMap<>(4);
             map.put("purchase",purchaseCount);
-            map.put("order",orderCount);
+            map.put("order",0);
             map.put("startShop",startShop);
             map.put("restShop",restShop);
             redisOperator.hPutAll(keyName,map);

@@ -73,6 +73,7 @@ public class MybatisPlusConfig {
                 String tableSysRole="sys_role";
                 String tableSysUserDetails="sys_user_details";
                 String merchantPurchaseDetails="merchant_purchase_details";
+                String merchantOrderDetails="merchant_order_details";
                 //过滤掉user表 不做多租户查询
                 if (tableUser.equals(tableName)){
                     return true;
@@ -86,7 +87,10 @@ public class MybatisPlusConfig {
                     return true;
                 }else if (tableSysUserDetails.equals(tableName)){
                     return true;
-                }else if (merchantPurchaseDetails.equals(tableName)){
+                }else if (merchantOrderDetails.equals(tableName)){
+                    return true;
+                }
+                else if (merchantPurchaseDetails.equals(tableName)){
                     return true;
                 }
                 return false;

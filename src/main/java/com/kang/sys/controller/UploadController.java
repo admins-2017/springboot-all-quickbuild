@@ -10,6 +10,7 @@ import com.kang.sys.service.FileService;
 import com.kang.sys.service.IUserDetailsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,8 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/upload")
-@Api(tags = "图片上传接口")
+@Api(value = "上传图片controller",tags = "上传对应操作")
+@Slf4j
 public class UploadController {
 
 
@@ -61,18 +63,23 @@ public class UploadController {
         return JSONResult.ok(result);
     }
 
+
     @PostMapping(value = "/uploadImgList")
     @ApiOperation(value = "多个图片上传到七牛云")
     public JSONResult uploadImgList(@RequestParam("files") MultipartFile[] files) throws IOException {
+        log.info("长度，{}",files.length);
+
         List<String> list = new ArrayList<>();
         for (MultipartFile upFile:files) {
             String fileName = upFile.getOriginalFilename();
             File file = new File(url + fileName);
-
+            String url="";
             try{
                 //将MulitpartFile文件转化为file文件格式
                 upFile.transferTo(file);
-                list.add(fileService.uploadFile(file));
+                String result = fileService.uploadFile(file);
+                url="http://"+path+'/'+result;
+                list.add(url);
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -84,7 +91,7 @@ public class UploadController {
 
 
     @PostMapping(value = "/uploadUserAvatar")
-    @ApiOperation(value = "单个图片上传到七牛云")
+    @ApiOperation(value = "用户头像上传到七牛云")
     public JSONResult uploadUserAvatar(@RequestParam(value = "file")MultipartFile upFile) throws IOException {
         String fileName = upFile.getOriginalFilename();
         File file = new File(url + fileName);

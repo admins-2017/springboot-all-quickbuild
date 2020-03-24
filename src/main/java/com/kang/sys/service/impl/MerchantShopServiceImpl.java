@@ -25,4 +25,11 @@ public class MerchantShopServiceImpl extends ServiceImpl<MerchantShopMapper, Mer
     public List<PurchaseShopVo> getListByInit() {
         return this.baseMapper.getListByInit();
     }
+
+    @Override
+    public List<PurchaseShopVo> getListByInitWithOrder() {
+        return this.baseMapper.getListByInitWithOrder();
+    }
+
+
 }

@@ -45,4 +45,12 @@ public interface MerchantCommodityMapper extends BaseMapper<MerchantCommodity> {
             "\tfrom merchant_commodity where commodity_status!=2")
     List<PurchaseCommodityVo> getListByInit();
 
+    /**
+     * 用于初始化数据
+     * @return
+     */
+    @Select("select commodity_id,commodity_name,commodity_number,commodity_picture,commodity_unit,commodity_description\n" +
+            "\tfrom merchant_commodity where commodity_status=0")
+    List<PurchaseCommodityVo> getListByInitWithOrder();
+
 }

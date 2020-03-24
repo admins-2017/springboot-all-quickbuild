@@ -10,6 +10,7 @@ import com.kang.imploded.security.until.SecurityUntil;
 import com.kang.sys.dto.RecordDto;
 import com.kang.sys.entity.OperationRecord;
 import com.kang.sys.service.IOperationRecordService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/record")
+@Api(value = "操作记录controller",tags = "操作记录对应操作")
 public class OperationRecordController {
 
 

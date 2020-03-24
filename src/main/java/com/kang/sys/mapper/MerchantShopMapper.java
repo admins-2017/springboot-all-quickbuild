@@ -24,4 +24,14 @@ public interface MerchantShopMapper extends BaseMapper<MerchantShop> {
     @Select("select shop_id,shop_name,shop_address\n" +
             "\tfrom merchant_shop where shop_status!=3")
     List<PurchaseShopVo> getListByInit();
+
+
+    /**
+     * 进货单初始化数据
+     * @return
+     */
+    @Select("select shop_id,shop_name,shop_address\n" +
+            "\tfrom merchant_shop where shop_status=1")
+    List<PurchaseShopVo> getListByInitWithOrder();
+
 }

@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/menu")
-@Api("权限详情")
+@Api(value = "权限管理controller",tags = "权限对应操作")
 @Slf4j
 public class MenuController {
 

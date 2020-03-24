@@ -3,6 +3,7 @@ package com.kang.sys.controller;
 import com.kang.imploded.email.config.MailTemplate;
 import com.kang.imploded.email.entity.MailEntity;
 import com.kang.imploded.json.JSONResult;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("mail")
+@Api(value = "邮件controller",tags = "邮件对应操作")
 public class EmailController {
 
     @Autowired

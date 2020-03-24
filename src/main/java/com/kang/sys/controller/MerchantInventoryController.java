@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/inventory")
-@Api(value = "库存controller",tags = "库存的controller")
+@Api(value = "库存controller",tags = "库存对应操作")
 public class MerchantInventoryController {
 
     @Autowired

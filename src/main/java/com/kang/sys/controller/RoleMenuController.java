@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/sys/role-menu")
-@Api("角色权限详情")
+@Api(value = "角色权限详情controller",tags = "角色权限详情对应操作")
 public class RoleMenuController {
 
     @ApiOperation(value = "新增商品",notes = "添加商品，新增时间，用户，修改时间，用户,租户id不需要添加")

@@ -103,7 +103,7 @@ public class MerchantPurchaseController {
         }
     }
 
-    @ApiOperation(value = "根据条件进行查询单据信息",notes = "根据状态进行查询单据信息")
+    @ApiOperation(value = "根据条件进行查询单据信息",notes = "根据条件进行查询单据信息")
     @GetMapping("/conditions")
     public JSONResult getPurchaseOrderWithQueryConditions(QueryPurchaseDto dto){
         IPage<PurchaseWithDetailsVo> dtoPage=purchaseService.getPageWithConditions(dto);

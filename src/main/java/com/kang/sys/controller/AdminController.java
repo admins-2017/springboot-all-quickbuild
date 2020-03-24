@@ -25,7 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin")
-@Api("管理员详情")
+@Api(value = "管理员controller",tags = "管理员对应操作")
 public class AdminController {
 
     @Autowired

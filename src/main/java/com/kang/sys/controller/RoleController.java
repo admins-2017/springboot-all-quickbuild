@@ -43,7 +43,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/role")
-@Api("角色详情")
+@Api(value = "角色controller",tags = "角色对应操作")
 public class RoleController {
 
     @Autowired

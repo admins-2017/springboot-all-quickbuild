@@ -55,7 +55,7 @@ public class Swagger2Config {
                 // 文档详细描述
                 .description("接口restful定义")
                 // 作者
-                .contact(new Contact("康东伟", "http://www.zhikestar.cn", "1067905926@qq.com"))
+                .contact(new Contact("康东伟", "http://www.zhikestar.cn/swagger-ui.html", "1067905926@qq.com"))
                 // 版本号
                 .version("1.0")
                 .build();

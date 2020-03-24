@@ -38,7 +38,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/category")
-@Api(value = "商品分类controller",tags = "商品分类对应操作的controller")
+@Api(value = "商品分类controller",tags = "商品分类对应操作")
 @Slf4j
 public class MerchantCommodityCategoryController {
 

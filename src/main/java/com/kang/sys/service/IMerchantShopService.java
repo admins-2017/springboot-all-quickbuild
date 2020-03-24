@@ -21,4 +21,11 @@ public interface IMerchantShopService extends IService<MerchantShop> {
      * @return
      */
     List<PurchaseShopVo> getListByInit();
+
+
+    /**
+     * 用于销售单初始化
+     * @return
+     */
+    List<PurchaseShopVo> getListByInitWithOrder();
 }

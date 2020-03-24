@@ -40,5 +40,10 @@ public class MerchantCommodityServiceImpl extends ServiceImpl<MerchantCommodityM
         return this.baseMapper.getListByInit();
     }
 
+    @Override
+    public List<PurchaseCommodityVo> getListByInitWithOrder() {
+        return this.baseMapper.getListByInitWithOrder();
+    }
+
 
 }
