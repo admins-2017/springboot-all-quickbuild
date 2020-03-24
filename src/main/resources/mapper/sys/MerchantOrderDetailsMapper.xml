@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kang.sys.mapper.MerchantOrderDetailsMapper">
+    <resultMap id="getDetails" type="com.kang.sys.vo.order.OrderDetailsVo">
+        <id column="details_id" property="detailsId"/>
+        <result column="commodity_name" property="commodityName"/>
+        <result column="commodity_number" property="commodityNumber"/>
+        <result column="commodity_unit" property="commodityUnit"/>
+        <result column="buy_number" property="buyNumber"/>
+        <result column="before_discount" property="beforeDiscount"/>
+        <result column="after_discount" property="afterDiscount"/>
+        <result column="discount_rate" property="discountRate"/>
+    </resultMap>
+
+    <select id="getDetailsByNumber" resultMap="getDetails" parameterType="string">
+      select mo.details_id,mo.buy_number,mo.before_discount,mo.after_discount,mo.discount_rate,mc.commodity_name
+	  ,mc.commodity_number,mc.commodity_unit from merchant_order_details mo
+	  LEFT JOIN merchant_commodity mc
+	  ON mo.commodity_id = mc.commodity_id
+	  where mo.order_number = #{orderNumber}
+
+    </select>
+</mapper>
