@@ -62,6 +62,9 @@ public class MerchantPurchase implements Serializable {
     @ApiModelProperty(value = "进货店铺")
     private Long shopId;
 
+    @ApiModelProperty(value = "作废标记 0作废 1未作废")
+    private Boolean delFlag;
+
     @ApiModelProperty(value = "添加订单用户id")
     @TableField(fill = FieldFill.INSERT)
     private Long insertUser;

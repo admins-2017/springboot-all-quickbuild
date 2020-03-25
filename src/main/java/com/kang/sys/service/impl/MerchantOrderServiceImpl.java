@@ -2,6 +2,7 @@ package com.kang.sys.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kang.imploded.redis.RedisOperator;
 import com.kang.imploded.utils.IdRandom;
 import com.kang.sys.dto.InsertOrderDto;
 import com.kang.sys.dto.QueryOrderDto;
@@ -48,6 +49,8 @@ public class MerchantOrderServiceImpl extends ServiceImpl<MerchantOrderMapper, M
     private IMerchantCommodityService commodityService;
     @Autowired
     private IMerchantShopService shopService;
+    @Autowired
+    private RedisOperator redisOperator;
 
 
     @Override
@@ -100,9 +103,6 @@ public class MerchantOrderServiceImpl extends ServiceImpl<MerchantOrderMapper, M
         OrderInitVo vo = new OrderInitVo();
         List<PurchaseShopVo> shops = shopService.getListByInitWithOrder();
         List<OrderClientVo> clients= clientService.getListByInitWithOrder();
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
-        //生成订单号
-        vo.setOrderNumber(sdf.format(new Date())+ IdRandom.getRandom());
         vo.setClientList(clients);
         vo.setShopList(shops);
         return vo;

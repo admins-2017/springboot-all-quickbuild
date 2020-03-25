@@ -38,23 +38,27 @@ public interface IUserService extends IService<User> {
      * @Return List<SysRoleEntity> 角色名集合
      */
     List<Role> selectRoleByUserId(Long userId);
+
     /**
-     * 根据用户ID查询权限集合
-     * @Author Sans
-     * @CreateTime 2019/9/18 18:01
-     * @Param  userId 用户ID
-     * @Return List<SysMenuEntity> 角色名集合
+     * 根据用户ID查询权限集合根据用户ID查询权限集合
+     * @param userId 用户id
+     * @return List<MenuTreeVo>
      */
     List<Menu> selectMenuByUserId(Long userId);
 
     /**
      * 根据用户id查询功能列表
-     * @Author Sans
-     * @CreateTime 2019/9/18 18:01
-     * @Param  userId 用户ID
-     * @Return List<SysMenuEntity> 角色名集合
+     * @param userId 用户id
+     * @return List<MenuTreeVo>
      */
     List<MenuTreeVo> selectMenuTreeByUserId(Long userId);
+
+    /**
+     * 根据租户id查询权限树
+     * @param tenantId 租户id
+     * @return MenuTreeVo 树形权限
+     */
+    List<MenuTreeVo> selectMenuTreeByTenantId(Long tenantId);
 
 
     /**

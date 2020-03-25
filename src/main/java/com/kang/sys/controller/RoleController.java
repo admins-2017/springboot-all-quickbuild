@@ -58,15 +58,13 @@ public class RoleController {
     @Autowired
     private RedisOperator redisOperator;
 
-    private String keyName = "shop:role:";
+    private String keyName = "role:";
 
     @ApiOperation(value = "新增角色",notes = "添加角色，新增时间，用户，修改时间，用户,租户id不需要添加")
     @PostMapping("/")
     @SysLog(description ="添加新角色")
     public JSONResult addRole(@RequestBody UserRoleDto userRoleDto){
-        String key = keyName+SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         roleService.addRole(userRoleDto);
         return JSONResult.ok();
     }
@@ -119,7 +117,7 @@ public class RoleController {
     @GetMapping("/")
     @SysLog(description ="查询所有角色")
     public JSONResult queryRoleAll(){
-        String key = keyName+SecurityUntil.getTenantId()+':'+"all";
+        String key = keyName+SecurityUntil.getTenantId()+":all";
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {
@@ -133,9 +131,7 @@ public class RoleController {
     @PutMapping("/")
     @SysLog(description ="修改角色信息")
     public JSONResult updateRole(UpdateOrDeleteRoleDto roleDto){
-        String key = keyName+SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         Role role = new Role();
         BeanUtils.copyProperties(roleDto,role);
         roleService.update(role,new UpdateWrapper<Role>().eq("role_id",roleDto.getRoleId()));
@@ -146,9 +142,7 @@ public class RoleController {
     @PutMapping("/status")
     @SysLog(description ="启停角色")
     public JSONResult updateRoleStatus(UpdateOrDeleteRoleDto roleDto){
-        String key = keyName+SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         roleService.update(new UpdateWrapper<Role>().set("del_flag",roleDto.getRoleDelFlag()).eq("role_id",roleDto.getRoleId()));
         return JSONResult.ok();
     }
@@ -160,9 +154,7 @@ public class RoleController {
     @DeleteMapping("/{roleId}")
     @SysLog(description ="删除角色")
     public JSONResult delRoleAndUpdateUserRole(@PathVariable Long roleId){
-        String key = keyName+SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         roleService.delRole(roleId);
         return JSONResult.ok("删除角色成功");
     }
@@ -176,12 +168,16 @@ public class RoleController {
     @PostMapping("/AssigningRoles")
     @SysLog(description ="为用户添加角色信息")
     public JSONResult addRoleWithUser(@RequestBody UserRole userRole){
-        String key = keyName+SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         boolean save = userRoleService.save(userRole);
         return JSONResult.ok(save);
     }
 
+
+    public void removeCache(){
+        String key = keyName+ SecurityUntil.getTenantId()+":";
+        Set<String> keys = redisOperator.keys(key+"*");
+        redisOperator.delKeys(keys);
+    }
 
 }

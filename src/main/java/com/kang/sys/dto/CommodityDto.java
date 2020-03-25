@@ -37,6 +37,9 @@ public class CommodityDto {
     @ApiModelProperty(value = "商品描述")
     private String commodityDescription;
 
+    @ApiModelProperty(value = "商品状态 0为正常 1为下架 2为删除")
+    private Integer commodityStatus;
+
     @ApiModelProperty(value = "商品分类id")
     private Integer categoryId;
 }

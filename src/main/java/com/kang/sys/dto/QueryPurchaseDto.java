@@ -36,6 +36,9 @@ public class QueryPurchaseDto {
     @ApiModelProperty(value = "进货人员")
     private String username;
 
+    @ApiModelProperty(value = "作废标记")
+    private Integer delFlag;
+
     @ApiModelProperty(value = "分页页码")
     private Integer page;
 

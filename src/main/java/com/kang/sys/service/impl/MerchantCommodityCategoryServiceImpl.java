@@ -26,17 +26,14 @@ import java.util.List;
  * @since 2019-11-18
  */
 @Service
-@CacheConfig(cacheNames = "shop:commodity-category")
 public class MerchantCommodityCategoryServiceImpl extends ServiceImpl<MerchantCommodityCategoryMapper, MerchantCommodityCategory> implements IMerchantCommodityCategoryService {
 
     @Override
-    @Cacheable(key = "#pages.current+':'+#pages.size+':'+#categoryId")
     public IPage<MerchantCommodityAndCategoryName> getCommodityWithCategory(Page<MerchantCommodityAndCategoryName> pages,Integer categoryId) {
         return this.baseMapper.getCommodityWithCategory(pages,categoryId);
     }
 
     @Override
-    @Cacheable(key = "#root.method+':'+#categoryPage.current+':'+#categoryPage.size")
     public IPage<MerchantCommodityCategoryVo> getAllCategoryWithPage(Page<MerchantCommodityCategoryVo> categoryPage) {
         //构建一级分类菜单分页
         IPage<MerchantCommodityCategoryVo> voIPage = this.baseMapper.selectAllCategoryWithPage(categoryPage);

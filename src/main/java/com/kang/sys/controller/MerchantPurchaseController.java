@@ -47,7 +47,7 @@ public class MerchantPurchaseController {
     @Autowired
     private RedisOperator redisOperator;
 
-    private String keyName="shop:merchant-purchase:";
+    private String keyName="purchase:";
 
     /**
      * 新增进货单
@@ -71,11 +71,15 @@ public class MerchantPurchaseController {
 
     /**
      * 作废进货/退货单
-     * @param id
+     * @param number 订单号
      * @return
      */
-    @DeleteMapping("/{id}")
-    public JSONResult invalidPurchaseOrder(@PathVariable Long id){
+    @DeleteMapping("/{number}")
+    public JSONResult invalidPurchaseOrder(@PathVariable String number){
+        clearCache();
+        //更新首页进货量的redis
+        redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(),"purchase",-1);
+        purchaseService.invalidPurchase(number);
         return JSONResult.ok();
     }
 
@@ -92,7 +96,7 @@ public class MerchantPurchaseController {
     @GetMapping("/status/{page}/{size}/{pStatus}")
     public JSONResult getPurchaseOrderWithStatus(@PathVariable Integer page
                 ,@PathVariable Integer size,@PathVariable Boolean pStatus){
-        String key =keyName+ SecurityUntil.getTenantId()+':'+page+':'+size+':'+pStatus;
+        String key =keyName+ SecurityUntil.getTenantId()+":getPurchaseOrderWithStatus:"+pStatus+':'+page+':'+size;
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {
@@ -103,6 +107,7 @@ public class MerchantPurchaseController {
         }
     }
 
+
     @ApiOperation(value = "根据条件进行查询单据信息",notes = "根据条件进行查询单据信息")
     @GetMapping("/conditions")
     public JSONResult getPurchaseOrderWithQueryConditions(QueryPurchaseDto dto){
@@ -110,22 +115,34 @@ public class MerchantPurchaseController {
         return JSONResult.ok(dtoPage);
     }
 
+    /**
+     * @return
+     */
     @ApiOperation(value = "初始化进货单",notes = "进货单初始化方法")
     @GetMapping("/purchaseInit")
     public JSONResult purchaseInit(){
-        String key = keyName+"init:"+SecurityUntil.getTenantId();
+        String key = keyName+SecurityUntil.getTenantId()+":init";
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
+
+
         if (redisOperator.exists(key)){
-            return JSONResult.ok(redisOperator.getObj(key));
+            PurchaseInitVo vo = (PurchaseInitVo)redisOperator.getObj(key);
+            //生成订单号
+            vo.setPurchaseNumber(sdf.format(new Date())+ IdRandom.getRandom());
+            return JSONResult.ok(vo);
         }else {
             PurchaseInitVo init = purchaseService.getInit();
+            //生成订单号
+            init.setPurchaseNumber(sdf.format(new Date())+ IdRandom.getRandom());
             redisOperator.setObjSeconds(key,init,3600);
             return JSONResult.ok(init);
         }
     }
 
     public void clearCache(){
-        String key = keyName+ SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key+"*");
+        String key =keyName+ SecurityUntil.getTenantId();
+        Set<String> keys = redisOperator.keys(key+":*");
         redisOperator.delKeys(keys);
     }
+
 }

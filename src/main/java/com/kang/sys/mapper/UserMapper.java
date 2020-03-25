@@ -91,4 +91,12 @@ public interface UserMapper extends BaseMapper<User> {
             "            on su.user_id = sud.user_id\n" +
             "            where su.tenant_id =#{tenantId} and CONCAT(su.username,sud.user_details_mail,sud.user_details_tel) LIKE #{likeName} ")
     List<UserWithDetailsVo> findUserWithLikeName(@Param("tenantId")Long tenantId,@Param("likeName")String likeName);
+
+    /**
+     * 根据租户id获取权限树
+     * @param tenantId
+     * @return
+     */
+    @Select("select menu_id,`name`,permission,path,component,parent_id,type from sys_menu where del_flag=0 AND tenant_id=#{tenantId}")
+    List<MenuTreeVo> selectMenuTreeByTenantId(@Param("tenantId") Long tenantId);
 }

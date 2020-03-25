@@ -4,7 +4,9 @@ package com.kang.sys.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kang.imploded.json.JSONResult;
+import com.kang.imploded.redis.RedisOperator;
 import com.kang.imploded.security.until.SecurityUntil;
+import com.kang.imploded.utils.IdRandom;
 import com.kang.sys.dto.InsertOrderDto;
 import com.kang.sys.dto.QueryOrderDto;
 import com.kang.sys.service.IMerchantOrderService;
@@ -17,7 +19,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -31,8 +36,12 @@ import java.util.List;
 @RequestMapping("/order")
 public class MerchantOrderController {
 
+    private String keyName="order:";
+
     @Autowired
     private IMerchantOrderService orderService;
+    @Autowired
+    private RedisOperator redisOperator;
 
     /**
      * PC端添加销售单
@@ -40,6 +49,7 @@ public class MerchantOrderController {
      */
     @PostMapping("/")
     public JSONResult addOrder(@RequestBody InsertOrderDto orderDto){
+        clearCache();
         orderService.insertOrder(orderDto);
         if (orderDto.getOrderStatus()){
             return JSONResult.ok("新增进货单完成");
@@ -62,9 +72,14 @@ public class MerchantOrderController {
     @GetMapping("/status/{page}/{size}/{pStatus}")
     public JSONResult getPurchaseOrderWithStatus(@PathVariable Integer page
             ,@PathVariable Integer size,@PathVariable Boolean pStatus){
-            Page<OrderWithDetailsVo> dtoPage = new Page<>(page, size);
-            IPage<OrderWithDetailsVo> pageWithStatus = orderService.getPageWithStatus(dtoPage, pStatus);
-            return JSONResult.ok(pageWithStatus);
+        String key =keyName+ SecurityUntil.getTenantId()+":getPurchaseOrderWithStatus:"+pStatus+":"+page+":"+size;
+        if (redisOperator.exists(key)){
+            return JSONResult.ok(redisOperator.getObj(key));
+        }
+        Page<OrderWithDetailsVo> dtoPage = new Page<>(page, size);
+        IPage<OrderWithDetailsVo> pageWithStatus = orderService.getPageWithStatus(dtoPage, pStatus);
+        redisOperator.setObj(key,pageWithStatus,3);
+        return JSONResult.ok(pageWithStatus);
     }
 
     @ApiOperation(value = "根据条件进行查询单据信息",notes = "根据条件进行查询单据信息")
@@ -77,7 +92,19 @@ public class MerchantOrderController {
     @ApiOperation(value = "初始销售单",notes = "销售单初始化方法")
     @GetMapping("/orderInit")
     public JSONResult orderInit(){
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
+        String key =keyName+ SecurityUntil.getTenantId()+":init";
+        if (redisOperator.exists(key)){
+            OrderInitVo vo =(OrderInitVo)redisOperator.getObj(key);
+            vo.setOrderNumber(sdf.format(new Date())+ IdRandom.getRandom());
+            return JSONResult.ok(vo);
+        }
         OrderInitVo vo = orderService.initVo();
+
+        redisOperator.setObj(key,vo,3600);
+        //生成订单号
+        vo.setOrderNumber(sdf.format(new Date())+ IdRandom.getRandom());
+
         return JSONResult.ok(vo);
     }
 
@@ -85,7 +112,12 @@ public class MerchantOrderController {
     @ApiOperation(value = "根据商铺查询所有商品及库存",notes = "根据商铺查询所有商品及库存")
     @GetMapping("/getCommodity/{shopId}")
     public JSONResult getCommodityByShopId(@PathVariable Long shopId){
+        String key =keyName+ SecurityUntil.getTenantId()+":getCommodityByShopId:"+shopId;
+        if (redisOperator.exists(key)){
+            return JSONResult.ok(redisOperator.getObj(key));
+        }
         List<CommodityWithShopVo> vo = orderService.getCommodityByShopId(shopId);
+        redisOperator.setObjSeconds(key,vo,3600);
         return JSONResult.ok(vo);
     }
 
@@ -95,6 +127,16 @@ public class MerchantOrderController {
      */
     public JSONResult initiateOrder(){
         return JSONResult.ok();
+    }
+
+
+    public void clearCache(){
+        String key =keyName+ SecurityUntil.getTenantId();
+        Set<String> keys = redisOperator.keys(key+":*");
+        keys.forEach(s -> {
+            System.out.println(s);
+        });
+        redisOperator.delKeys(keys);
     }
 
 }

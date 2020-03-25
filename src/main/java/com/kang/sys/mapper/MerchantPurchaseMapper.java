@@ -35,7 +35,7 @@ public interface MerchantPurchaseMapper extends BaseMapper<MerchantPurchase> {
             "\t\t\tON mp.supplier_id = ms.supplier_id\n" +
             "\t\tLEFT JOIN merchant_shop msp\n" +
             "\t\t\tON mp.shop_id = msp.shop_id\n" +
-            "\t\t\twhere purchase_status = #{pStatus}")
+            "\t\t\twhere del_flag = 1 and  purchase_status = #{pStatus}")
     IPage<PurchaseWithDetailsVo> getPageWithStatus(Page<PurchaseWithDetailsVo> dtoPage, @Param("pStatus") Boolean pStatus);
 
     /**

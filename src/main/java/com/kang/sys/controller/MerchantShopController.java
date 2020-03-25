@@ -51,11 +51,12 @@ public class MerchantShopController {
     @Autowired
     private RedisOperator redisOperator;
 
-    private String keyName="merchant-shop:";
+    private String keyName="shop:";
 
     @ApiOperation(value = "新增商铺",notes = "添加商铺，新增时间，用户，修改时间，用户,租户id不需要添加")
     @PostMapping("/")
     public JSONResult addShop(@RequestBody MerchantShopDto merchantShop){
+
         MerchantShop shop = new MerchantShop();
         BeanUtils.copyProperties(merchantShop,shop);
         shop.setShopId(Long.parseLong(IdRandom.getRandom()));
@@ -64,7 +65,7 @@ public class MerchantShopController {
             clearCache();
             redisOperator.hashIncrBy(RedisIndexEnum.indexDetailsRedisKey.getCode(),"startShop",1);
         }
-        return JSONResult.ok(save);
+        return JSONResult.ok();
     }
 
     @ApiOperation(value = "删除商铺",notes = "根据商铺id获取删除对应的商铺")
@@ -138,7 +139,7 @@ public class MerchantShopController {
     @GetMapping("/{page}/{size}")
     public JSONResult getAllShop(@PathVariable(value = "page") Integer page,
                                   @PathVariable(value="size") Integer size){
-        String key = keyName+ SecurityUntil.getTenantId()+':'+page+':'+size;
+        String key = keyName+ SecurityUntil.getTenantId()+":getAllShop:"+page+':'+size;
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {
@@ -157,7 +158,7 @@ public class MerchantShopController {
     })
     @GetMapping("/{page}/{size}/{shopId}")
     public JSONResult getCommodityWithShop(@PathVariable Integer page,@PathVariable Integer size,@PathVariable Long shopId){
-        String key = keyName+ SecurityUntil.getTenantId()+":shop-commodity:"+shopId+':'+page+':'+size;
+        String key = keyName+ SecurityUntil.getTenantId()+":getCommodityWithShop:"+shopId+':'+page+':'+size;
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {

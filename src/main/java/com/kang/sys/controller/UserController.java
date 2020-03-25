@@ -45,7 +45,7 @@ public class UserController {
     @Autowired
     private RedisOperator redisOperator;
 
-    private String keyName = "shop:user:";
+    private String keyName = "user:";
 
     /**
      * 用户端信息
@@ -56,6 +56,7 @@ public class UserController {
     @RequestMapping(value = "/info",method = RequestMethod.GET)
     @SysLog(description ="为用户添加角色信息")
     public JSONResult userLogin(HttpServletRequest request){
+        removeCache();
         SecurityUser userDetails = (SecurityUser) SecurityContextHolder.getContext().getAuthentication() .getPrincipal();
         return JSONResult.ok(userDetails);
     }
@@ -101,9 +102,7 @@ public class UserController {
     @PostMapping("/")
     @SysLog(description ="添加用户信息")
     public JSONResult addUser(@RequestBody UserWithDetails details){
-        String key = keyName+ SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         userService.addUserAndDetails(details);
         return JSONResult.ok("新增成功");
     }
@@ -115,9 +114,7 @@ public class UserController {
     @PutMapping("/")
     @SysLog(description ="修改用户信息")
     public JSONResult updateUser(@RequestBody UpdateUserDto updateUserDto){
-        String key = keyName+ SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         userService.updateUserWithDetails(updateUserDto);
         return JSONResult.ok();
     }
@@ -125,9 +122,7 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @SysLog(description ="删除用户信息")
     public JSONResult removeUser(@PathVariable String userId){
-        String key = keyName+ SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         userService.deleteUserAndDetails(Long.parseLong(userId));
         return JSONResult.ok();
     }
@@ -135,9 +130,7 @@ public class UserController {
     @PutMapping("/status")
     @SysLog(description ="启停用户")
     public JSONResult updateUserStatus(UpdateOrDeleteUserDto userStatusVo){
-        String key = keyName+ SecurityUntil.getTenantId()+':';
-        Set<String> keys = redisOperator.keys(key);
-        redisOperator.delKeys(keys);
+        removeCache();
         userService.update(new UpdateWrapper<User>().set("status",userStatusVo.getStatus())
                 .eq("user_id",userStatusVo.getUserId()));
         return JSONResult.ok();
@@ -180,4 +173,9 @@ public class UserController {
     }
 
 
+    public void removeCache(){
+        String key = keyName+ SecurityUntil.getTenantId()+":";
+        Set<String> keys = redisOperator.keys(key+"*");
+        redisOperator.delKeys(keys);
+    }
 }

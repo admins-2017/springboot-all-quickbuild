@@ -41,7 +41,7 @@ public class MerchantSupplierController {
     @Autowired
     private RedisOperator redisOperator;
 
-    private String keyName = "merchant-supplier:";
+    private String keyName = "supplier:";
 
     @ApiOperation(value = "新增供应商信息",notes = "添加供应商")
     @PostMapping("/")
@@ -49,7 +49,7 @@ public class MerchantSupplierController {
         MerchantSupplier supplier = new MerchantSupplier();
         BeanUtils.copyProperties(supplierDto,supplier);
         supplierService.save(supplier);
-        String key = keyName+ SecurityUntil.getTenantId()+":1:"+"*";
+        String key = keyName+ SecurityUntil.getTenantId()+":true:"+"*";
         Set<String> keys = redisOperator.keys(key);
         redisOperator.delKeys(keys);
         return JSONResult.ok("添加成功");
@@ -76,7 +76,7 @@ public class MerchantSupplierController {
     })
     @GetMapping("/history/{page}/{size}")
     public JSONResult getSupplierAllWithExpired(@PathVariable Integer page,@PathVariable Integer size){
-        String key = keyName+ SecurityUntil.getTenantId()+":0:"+page+':'+size;
+        String key = keyName+ SecurityUntil.getTenantId()+":false:"+page+':'+size;
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {
@@ -95,7 +95,7 @@ public class MerchantSupplierController {
     })
     @GetMapping("/{page}/{size}")
     public JSONResult getSupplierAll(@PathVariable Integer page,@PathVariable Integer size){
-        String key = keyName+ SecurityUntil.getTenantId()+":1:"+page+':'+size;
+        String key = keyName+ SecurityUntil.getTenantId()+":true:"+page+':'+size;
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {

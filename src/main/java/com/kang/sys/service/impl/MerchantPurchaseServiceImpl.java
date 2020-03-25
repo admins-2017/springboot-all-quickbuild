@@ -41,7 +41,6 @@ import java.util.List;
  * @since 2020-02-18
  */
 @Service
-@CacheConfig(cacheNames = "shop:merchant-purchase")
 public class MerchantPurchaseServiceImpl extends ServiceImpl<MerchantPurchaseMapper, MerchantPurchase> implements IMerchantPurchaseService {
 
     @Autowired
@@ -134,10 +133,45 @@ public class MerchantPurchaseServiceImpl extends ServiceImpl<MerchantPurchaseMap
         vo.setCommodityList(commodityVoList);
         vo.setShopList(shopVoList);
         vo.setSupplierList(listByInit);
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
-        //生成订单号
-        vo.setPurchaseNumber(sdf.format(new Date())+ IdRandom.getRandom());
         return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void invalidPurchase(String number) {
+        MerchantPurchase merchantPurchase = this.baseMapper.
+                selectOne(new QueryWrapper<MerchantPurchase>().eq("purchase_number", number));
+        List<MerchantPurchaseDetails> list = detailsService.list(new QueryWrapper<MerchantPurchaseDetails>().eq("purchase_number", number));
+        /**
+         * 判断订单类型
+         */
+        if (merchantPurchase.getPurchaseStatus()){
+            if (merchantPurchase.getPurchaseSettleStatus() == false) {
+                supplierService.supplierRefund(merchantPurchase.getSupplierId(), merchantPurchase.getPurchaseUnpaid());
+            }
+            /**
+             * 更新库存
+             */
+            for (MerchantPurchaseDetails details : list) {
+                /**
+                 * 预留功能 退货数量不能比现有库存大
+                 */
+                inventoryService.recedeInventory(merchantPurchase.getShopId(), details.getCommodityId(), details.getPurchaseQuantity());
+            }
+        }else {
+            if (merchantPurchase.getPurchaseSettleStatus() == false) {
+                supplierService.updateArrears(merchantPurchase.getSupplierId(), merchantPurchase.getPurchaseUnpaid());
+            }
+            for (MerchantPurchaseDetails detail : list) {
+                Integer count = inventoryService.getCount(merchantPurchase.getShopId(), detail.getCommodityId());
+                if (count == 0) {
+                    inventoryService.save(new MerchantInventory(merchantPurchase.getShopId(), detail.getCommodityId(), detail.getPurchaseQuantity()));
+                } else {
+                    inventoryService.updateInventory(merchantPurchase.getShopId(), detail.getCommodityId(), detail.getPurchaseQuantity());
+                }
+            }
+        }
+        this.baseMapper.update(null,new UpdateWrapper<MerchantPurchase>().set("del_flag",0).eq("purchase_number",number));
     }
 
 }

@@ -45,4 +45,10 @@ public interface IMerchantPurchaseService extends IService<MerchantPurchase> {
      * @return
      */
     PurchaseInitVo getInit();
+
+    /**
+     * 作废进货单
+     * @param id
+     */
+    void invalidPurchase(String number);
 }

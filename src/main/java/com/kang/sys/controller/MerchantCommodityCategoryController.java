@@ -42,7 +42,7 @@ import java.util.Set;
 @Slf4j
 public class MerchantCommodityCategoryController {
 
-    private String keyName="commodity-category:";
+    private String keyName="category:";
 
     @Autowired
     private IMerchantCommodityCategoryService categoryService;
@@ -55,30 +55,21 @@ public class MerchantCommodityCategoryController {
     @SysLog(description ="添加商品分类")
     public JSONResult addCategory(@RequestBody CategoryDto categoryDto){
         MerchantCommodityCategory category = new MerchantCommodityCategory();
+        clearCache();
         BeanUtils.copyProperties(categoryDto,category);
         boolean save = categoryService.save(category);
-        Map<String,Object> map  = JSONObject.parseObject(JSON.toJSONString(category));
-        redisOperator.hPutAll(keyName+SecurityUntil.getTenantId()+category.getCategoryId(),map);
-        clearCache();
         return JSONResult.ok(save);
     }
+
+
     @ApiOperation(value = "根据id查询商品分类",notes = "根据商品分类id查询对应的商品分类")
     @ApiImplicitParams(
             @ApiImplicitParam(name = "cid",value = "商品id",dataType = "int")
     )
     @GetMapping("/{cid}")
     public JSONResult getCategoryWithId(@PathVariable Integer cid){
-        String key =keyName+SecurityUntil.getTenantId()+cid;
-        if (redisOperator.exists(key)){
-            Map<Object, Object> get = redisOperator.hgetall(key);
-            MerchantCommodityCategory category=JSON.parseObject(JSON.toJSONString(get), MerchantCommodityCategory.class);
-            return JSONResult.ok(category);
-        }else {
             MerchantCommodityCategory category = categoryService.getById(cid);
-            Map<String, Object> map = JSONObject.parseObject(JSON.toJSONString(category));
-            redisOperator.hPutAll(key, map);
             return JSONResult.ok(category);
-        }
     }
 
 
@@ -92,7 +83,6 @@ public class MerchantCommodityCategoryController {
     public JSONResult deleteCategory(@PathVariable Integer cid){
         boolean update = categoryService.update(new UpdateWrapper<MerchantCommodityCategory>().set("category_status",
                 SysEnum.commodityCategoryDelete.getCode()).eq("category_id", cid));
-        redisOperator.delKey(keyName+SecurityUntil.getTenantId()+cid);
         clearCache();
         return JSONResult.ok(update);
     }
@@ -103,7 +93,6 @@ public class MerchantCommodityCategoryController {
     public JSONResult updateCategory(MerchantCommodityCategory commodityCategory){
         boolean update = categoryService.update(commodityCategory, new UpdateWrapper<MerchantCommodityCategory>()
                 .eq("category_id", commodityCategory.getCategoryId()));
-        redisOperator.delKey(keyName+SecurityUntil.getTenantId()+commodityCategory.getCategoryId());
         clearCache();
         return JSONResult.ok(update);
     }
@@ -120,7 +109,7 @@ public class MerchantCommodityCategoryController {
     public JSONResult getCommodityWithCategory(@PathVariable(value = "page") Integer page,
                                                @PathVariable(value = "size") Integer size,
                                                @PathVariable(value = "categoryId") Integer categoryId){
-        String key =keyName+ SecurityUntil.getTenantId()+"get"+categoryId+':'+page+':'+size;
+        String key =keyName+ SecurityUntil.getTenantId()+":byCategory:"+categoryId+':'+page+':'+size;
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {
@@ -145,7 +134,7 @@ public class MerchantCommodityCategoryController {
     public JSONResult getCommodityTree(@PathVariable(value = "page") Integer page,
                                                @PathVariable(value = "size") Integer size
                                                ){
-        String key =keyName+ SecurityUntil.getTenantId()+"get"+':'+page+':'+size;
+        String key =keyName+ SecurityUntil.getTenantId()+":getAllCategory:"+page+':'+size;
         if (redisOperator.exists(key)){
             return JSONResult.ok(redisOperator.getObj(key));
         }else {
@@ -159,8 +148,11 @@ public class MerchantCommodityCategoryController {
 
 
     public void clearCache(){
-        String key =keyName+ SecurityUntil.getTenantId()+"get:";
-        Set<String> keys = redisOperator.keys(key+"*");
+        String key =keyName+ SecurityUntil.getTenantId();
+        Set<String> keys = redisOperator.keys(key+":*");
+        keys.forEach(s -> {
+            System.out.println(s);
+        });
         redisOperator.delKeys(keys);
     }
 }

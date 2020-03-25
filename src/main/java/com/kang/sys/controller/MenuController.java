@@ -57,15 +57,34 @@ public class MenuController {
     @GetMapping("/tree")
     @SysLog(description ="根据权限动态加载功能栏")
     public JSONResult generateFunctionBarWithMenu(){
-        String keyName = "menu:"+SecurityUntil.getUserId();
-
+        String keyName = "menu:user:"+SecurityUntil.getUserId();
         if (redisOperator.exists(keyName)){
             Object obj = redisOperator.getObj(keyName);
             return JSONResult.ok(obj);
         }else {
             List<MenuTreeVo> menus = userService.selectMenuTreeByUserId(SecurityUntil.getUserId());
             List<MenuTreeVo> menuList = ParseMenuTreeUtil.parseMenuTree(menus);
-            redisOperator.setObj("menu:" + SecurityUntil.getUserId(), menuList, 24);
+            redisOperator.setObj(keyName, menuList, 24);
+            return JSONResult.ok(menuList);
+        }
+
+    }
+
+
+    /**
+     * 根据租户返回权限树
+     */
+    @GetMapping("/tenant")
+    @SysLog(description ="根据权限动态加载功能栏")
+    public JSONResult getTreeByTenant(){
+        String keyName= "menu:"+SecurityUntil.getTenantId()+":tree";
+        if (redisOperator.exists(keyName)){
+            Object obj = redisOperator.getObj(keyName);
+            return JSONResult.ok(obj);
+        }else {
+            List<MenuTreeVo> menus = userService.selectMenuTreeByTenantId(SecurityUntil.getTenantId());
+            List<MenuTreeVo> menuList = ParseMenuTreeUtil.parseMenuTree(menus);
+            redisOperator.setObj(keyName, menuList, 24);
             return JSONResult.ok(menuList);
         }
 
@@ -78,8 +97,7 @@ public class MenuController {
     @SysLog(description ="查询当前租户下所有权限")
     @PreAuthorize("hasPermission('/menu','sys:menu:list')")
     public JSONResult getAllMenuByTenantId(){
-        String keyName= "menu:tenant:"+SecurityUntil.getTenantId();
-        log.info("keyName:{}",keyName);
+        String keyName= "menu:"+SecurityUntil.getTenantId()+":tenant";
         if (redisOperator.exists(keyName)){
             return JSONResult.ok(redisOperator.getObj(keyName));
         }else {
@@ -97,6 +115,7 @@ public class MenuController {
     @SysLog(description ="为角色添加权限")
     @Transactional(rollbackFor = Exception.class)
     public JSONResult addPermissionsWithRole(@RequestBody RoleMenuDto roleMenuDto){
+        this.delKey();
         Long roleId =roleMenuDto.getRoleId();
         roleMenuService.remove(new QueryWrapper<RoleMenu>().eq("role_id",roleId));
         List<RoleMenu> menus = new ArrayList<>();
@@ -104,6 +123,16 @@ public class MenuController {
             menus.add(new RoleMenu(roleId,menu));
         }
         roleMenuService.saveBatch(menus);
-        return JSONResult.ok();
+        return JSONResult.ok(roleMenuDto);
+    }
+
+    /**
+     * 删除redis中用户对应权限的key
+     * @return
+     */
+    public boolean delKey(){
+        String keyName = "menu:user:"+SecurityUntil.getUserId();
+        redisOperator.delKey(keyName);
+        return true;
     }
 }

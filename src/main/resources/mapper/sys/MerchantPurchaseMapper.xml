@@ -36,6 +36,9 @@
             <if test="dto.purchaseNumber != null">
                 AND mp.purchase_number = #{dto.purchaseNumber}
             </if>
+            <if test="dto.delFlag != null">
+                AND mp.del_flag = #{dto.delFlag}
+            </if>
             <if test="dto.purchaseSettleStatus != null">
                 AND mp.purchase_settle_status = #{dto.purchaseSettleStatus}
             </if>

@@ -25,12 +25,10 @@ import java.util.List;
  * @since 2019-11-18
  */
 @Service
-@CacheConfig(cacheNames = "shop:commodity")
 public class MerchantCommodityServiceImpl extends ServiceImpl<MerchantCommodityMapper, MerchantCommodity> implements IMerchantCommodityService {
 
 
     @Override
-    @Cacheable(key = "#pages.current+':'+#pages.size+':'+#commodityStatus")
     public IPage<CommodityWithCategory> selectByCommodityStatus(Page<CommodityWithCategory> pages, Integer commodityStatus) {
         return this.baseMapper.selectByCommodityStatus(pages,commodityStatus, SecurityUntil.getTenantId());
     }
