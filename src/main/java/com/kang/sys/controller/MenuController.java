@@ -58,6 +58,7 @@ public class MenuController {
     @SysLog(description ="根据权限动态加载功能栏")
     public JSONResult generateFunctionBarWithMenu(){
         String keyName = "menu:user:"+SecurityUntil.getUserId();
+        System.out.println("ceshibendi");
         if (redisOperator.exists(keyName)){
             Object obj = redisOperator.getObj(keyName);
             return JSONResult.ok(obj);
